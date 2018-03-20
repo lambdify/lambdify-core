@@ -1,0 +1,45 @@
+modelVersion: 4.0.0
+
+groupId: ibratan.foss.lambdify
+artifactId: lambdify-plugin
+version: 1.0.0-SNAPSHOT
+packaging: maven-plugin
+
+properties:
+  version.aws-sdk: 1.11.125
+  version.maven-core: 3.5.3
+  version.maven-ann: 3.5.1
+  version.plexus: 1.7.1
+
+parent: { groupId: io.skullabs.boilerplates, artifactId: java-8, version: 1.0.0 }
+
+dependencies:
+# compile time dependencies
+- { groupId: com.amazonaws,    artifactId: aws-java-sdk-lambda,      version: "${version.aws-sdk}" }
+- { groupId: com.amazonaws,    artifactId: aws-java-sdk-s3,          version: "${version.aws-sdk}" }
+- { groupId: com.amazonaws,    artifactId: aws-java-sdk-sts,         version: "${version.aws-sdk}" }
+- { groupId: com.amazonaws,    artifactId: aws-java-sdk-api-gateway, version: "${version.aws-sdk}" }
+
+# maven plugin dependencies
+- { groupId: org.apache.maven,              artifactId: maven-core,                   version: "${version.maven-core}" }
+- { groupId: org.apache.maven.plugin-tools, artifactId: maven-plugin-annotations,     version: "${version.maven-ann}" }
+- { groupId: org.codehaus.plexus,           artifactId: plexus-component-annotations, version: "${version.plexus}" }
+
+# test only dependencies
+# - { groupId: ch.qos.logback,  artifactId: logback-classic, version: 1.2.3, scope: test }
+
+build:
+  plugins:
+  - groupId: org.apache.maven.plugins
+    artifactId: maven-plugin-plugin
+    version: "${version.maven-ann}"
+    executions:
+    - { id: default-descriptor, goals: ["descriptor"], phase: "process-classes" }
+    - { id: help-descriptor, goals: ["helpmojo"], phase: "process-classes" }
+
+  - groupId: org.codehaus.plexus
+    artifactId: plexus-component-metadata
+    version: "${version.plexus}"
+    executions:
+    - { goals: ["generate-metadata"] }
+
