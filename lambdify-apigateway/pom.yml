@@ -1,0 +1,25 @@
+# The chosen project's boilerplates as parent
+parent: { groupId: io.skullabs.boilerplates, artifactId: kotlin-1.2, version: 1.0.0 }
+
+# Project definition
+modelVersion: 4.0.0
+groupId: org.lambdify
+artifactId: lambdify-apigateway
+version: 0.1.0.Final
+packaging: jar
+
+properties:
+  # versions of libraries used on this project
+  version.aws-sdk: 1.11.125
+  version.aws-lambda: 1.1.0
+  version.aws-log4j2: 1.0.0
+  version.log4j2: 2.8.2
+
+dependencies:
+# Kotlin Dependencies
+- { groupId: org.jetbrains.kotlin,    artifactId: kotlin-stdlib-jdk8 }
+# Test Dependencies
+- { groupId: org.junit.jupiter,       artifactId: junit-jupiter-engine }
+# AWS Lambda Dependencies
+- { groupId: com.amazonaws,    artifactId: aws-lambda-java-core,      version: "${version.aws-lambda}" }
+

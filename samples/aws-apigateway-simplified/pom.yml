@@ -1,0 +1,28 @@
+# The chosen project's boilerplates as parent
+parent: { groupId: org.lambdify, artifactId: lambdify-project, version: 0.1.0.Final }
+
+# Project definition
+modelVersion: 4.0.0
+groupId: io.skullabs.boilerplates
+artifactId: aws-apigateway-simplified
+packaging: jar
+
+properties:
+  # configure your lambda project here
+  config.lambda.region: "sa-east-1"
+  config.lambda.timeout: 60
+  config.lambda.memory: 128
+  config.lambda.s3bucket: ibratan-deployments
+  config.lambda.role: arn:aws:iam::268326769536:role/ibratan-lambda2
+  config.lambda.class: lambdify.apigateway.kotlin.MyApp
+
+dependencies:
+# Main Dependencies
+- { groupId: org.jetbrains.kotlin,    artifactId: kotlin-stdlib-jdk8 }
+- { groupId: org.lambdify,            artifactId: lambdify-apigateway }
+# Log4j2 Dependencies (Optional)
+- { groupId: org.apache.logging.log4j,  artifactId: log4j-core }
+- { groupId: org.apache.logging.log4j,  artifactId: log4j-api }
+- { groupId: com.amazonaws,           artifactId: aws-lambda-java-log4j2 }
+# Test Dependencies
+- { groupId: org.junit.jupiter,       artifactId: junit-jupiter-engine }
