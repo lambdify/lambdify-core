@@ -4,9 +4,9 @@ Simplified AWS Lambda Development for Kotlin and Java 8.
 ## What is Lambdify?
 The main goal of this project is provide an easy environment to create serverless applications through the AWS Lambda API. 
 Lambdify consists of:
-- A Maven-Plugin to deploy your uber-jar as a Lambda Application
-- An API Gateway router to receive and handle requests from multiple endpoints at the same Lambda Application.
-- A pre-defined Maven project structure (boilerplate) for Lambda applications with API Gateway.
+- A [Maven-Plugin](https://github.com/lambdify/lambdify/tree/master/lambdify-plugin) to deploy your uber-jar as a Lambda Application
+- An [API Gateway router](https://github.com/lambdify/lambdify/tree/master/lambdify-apigateway) to receive and handle requests from multiple endpoints at the same Lambda Application.
+- A [pre-defined Maven project](https://github.com/lambdify/lambdify/tree/master/lambdify-project) structure (boilerplate) for Lambda applications with API Gateway.
 
 Worth to notice that despite of Lambdify being mainly written in Koltin, it can perfectly be used to design Java8 applications.
 
