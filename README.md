@@ -1,52 +1,20 @@
 # lambdify
-Simplified AWS Lambda Deployment
+Simplified AWS Lambda Development for Kotlin and Java 8.
 
-## Usage
-Include the `lambdify-plugin` on your Maven project.
-```xml
-   <plugin>
-     <groupId>ibratan.foss.lambdify</groupId>
-     <artifactId>lambdify-plugin</artifactId>
-     <version>1.0.0-SNAPSHOT</version>
-     <executions>
-       <execution>
-         <phase>deploy</phase>
-         <goals>
-           <goal>deploy-on-aws-lambda</goal>
-         </goals>
-       </execution>
-     </executions>
-     <configuration>
-       <enabled>true</enabled>
-       <createAPIEndpoints>true</createAPIEndpoints>
-       <regionName>${config.lambda.region}</regionName>
-       <lambdaTimeout>${config.lambda.timeout}</lambdaTimeout>
-       <lambdaMemory>${config.lambda.memory}</lambdaMemory>
-       <s3Bucket>${config.lambda.s3bucket}</s3Bucket>
-       <lambdaRole>${config.lambda.role}</lambdaRole>
-       <handlerClass>${config.lambda.class}</handlerClass>
-     </configuration>
-   </plugin>
-```
+## What is Lambdify?
+The main goal of this project is provide an easy environment to create serverless applications through the AWS Lambda API. 
+Lambdify consists of:
+- A Maven-Plugin to deploy your uber-jar as a Lambda Application
+- An API Gateway router to receive and handle requests from multiple endpoints at the same Lambda Application.
 
-## Configuration Requirements
-The following properties should be defined in order to your project work properly:
-- **config.lambda.region**: The AWS Region you intent to deploy your lambda functions
-- **config.lambda.timeout**: The execution timeout of your function (in seconds)
-- **config.lambda.memory**: The expected memory usage of your lambda function (should be a valid memory value)
-- **config.lambda.s3bucket**: The S3 Bucket you expect to deploy your jar file
-- **config.lambda.role**: The AWS Role that will be associated to your Lambda Function
-- **config.lambda.class**: The Java class (or endpoint) you intent to expose as Lambda Function
-
-Please enrure you have also properly configured your `maven-shade-plugin` to generate an uber-jar from your
-project before upload it to S3 and deploy your function.
+Worth to notice that despite of Lambdify being mainly written in Koltin, it can perfectly be used to design Java8 applications.
 
 ## Documentation
 A well writen documentation wasn't finished yet. But you can get some inspirations at the sample
 AWS project available at the `samples` directory.
 
 ## Acknowledgements
-This project was made public as an effort of Ibratan to provide good and reliable software to
+This project was made public as an effort of [Ibratan](https://github.com/Ibratan) to provide good and reliable software to
 the Open Source community.
 
 Also this project was deeply based on [Kikaha's Maven Plugin](http://kikaha.io).
