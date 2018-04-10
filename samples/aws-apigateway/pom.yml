@@ -13,7 +13,7 @@ properties:
   config.lambda.timeout: 60
   config.lambda.memory: 128
   config.lambda.s3bucket: ibratan-deployments
-  config.lambda.role: arn:aws:iam::268326769536:role/ibratan-lambda2
+  config.lambda.role: arn:aws:iam::123456:role/lambda
   config.lambda.class: lambdify.apigateway.kotlin.MyApp
 
   # versions of libraries used on this project

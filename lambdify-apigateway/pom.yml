@@ -23,3 +23,18 @@ dependencies:
 # AWS Lambda Dependencies
 - { groupId: com.amazonaws,    artifactId: aws-lambda-java-core,      version: "${version.aws-lambda}" }
 
+profiles:
+  - id: deploy-javadoc
+    pluginRepositories:
+    - { id: jcenter, url: "https://jcenter.bintray.com/" }
+    build:
+      plugins:
+      - groupId: org.jetbrains.dokka
+        artifactId: dokka-maven-plugin
+        version: 0.9.16
+        executions:
+          - { phase: test, goals: ["javadocJar"] }
+        configuration:
+          show: private
+          nohelp: true
+

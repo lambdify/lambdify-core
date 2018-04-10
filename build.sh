@@ -1,6 +1,6 @@
 #!/bin/sh
 
-action=${1:-install}
+action=${@:-install}
 dirs='lambdify-plugin lambdify-apigateway lambdify-project'
 
 for module in $dirs; do
