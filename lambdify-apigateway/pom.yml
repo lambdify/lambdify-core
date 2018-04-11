@@ -17,16 +17,15 @@ properties:
 
 dependencies:
 # Kotlin Dependencies
-- { groupId: org.jetbrains.kotlin,    artifactId: kotlin-stdlib-jdk8 }
-# Test Dependencies
-- { groupId: org.junit.jupiter,       artifactId: junit-jupiter-engine }
+- { groupId: org.jetbrains.kotlin,  artifactId: kotlin-stdlib-jdk8 }
 # AWS Lambda Dependencies
-- { groupId: com.amazonaws,    artifactId: aws-lambda-java-core,      version: "${version.aws-lambda}" }
+- { groupId: com.amazonaws,         artifactId: aws-lambda-java-core,   version: "${version.aws-lambda}" }
+# Test Dependencies
+- { groupId: org.junit.jupiter,     artifactId: junit-jupiter-engine }
+- { groupId: com.fasterxml.jackson.module,   artifactId: jackson-module-kotlin,   version: "2.9.4.1",    scope: test }
 
 profiles:
   - id: deploy-javadoc
-    pluginRepositories:
-    - { id: jcenter, url: "https://jcenter.bintray.com/" }
     build:
       plugins:
       - groupId: org.jetbrains.dokka
@@ -37,4 +36,9 @@ profiles:
         configuration:
           show: private
           nohelp: true
+
+repositories:
+  - { id: jcenter, url: "https://jcenter.bintray.com" }
+pluginRepositories:
+  - { id: jcenter, url: "https://jcenter.bintray.com" }
 

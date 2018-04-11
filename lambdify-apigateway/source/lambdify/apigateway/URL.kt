@@ -83,7 +83,7 @@ class PlaceHolder( val key:String ): CompiledEntry {
 }
 
 enum class Methods {
-    GET, POST, PUT, PATCH, DELETE;
+    GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, ALL;
 
     infix fun and(url: String ): Route = Route(this, url)
 }

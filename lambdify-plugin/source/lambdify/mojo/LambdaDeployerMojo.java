@@ -139,11 +139,11 @@ public class LambdaDeployerMojo extends AbstractMojo {
 		getLog().info( "Creating REST API '"+ projectName +"'..." );
 		val restApiID = aws.createRestApi(projectName).getId();
 
-		getLog().info( "Pointing the all requests to lambda function '"+ functionArn +"'" );
+		getLog().info( "Pointing the any '/' requests to lambda function '"+ functionArn +"'" );
 		var resourceId = aws.getRootResourceId( restApiID );
         aws.putMethod(restApiID, resourceId);
         aws.assignLambdaToResource(restApiID, resourceId, functionArn, regionName);
-        getLog().info( "Pointing the all sub-requests to lambda function '"+ functionArn +"'" );
+        getLog().info( "Pointing the requests that matches '/*' to lambda function '"+ functionArn +"'" );
         resourceId = aws.createProxyResource(resourceId, restApiID).getId();
 		aws.putMethod(restApiID, resourceId);
 		aws.assignLambdaToResource(restApiID, resourceId, functionArn, regionName);

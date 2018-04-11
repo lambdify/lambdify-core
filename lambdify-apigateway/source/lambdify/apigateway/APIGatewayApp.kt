@@ -6,7 +6,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler
 /**
  * Created by miere.teixeira on 06/04/2018.
  */
-open class App(builder: RouteBuilder.() -> Unit) : RequestHandler<APIGatewayRequest, APIGatewayResponse> {
+open class APIGatewayApp(builder: RouteBuilder.() -> Unit) : RequestHandler<APIGatewayRequest, APIGatewayResponse> {
 
     private val matcher = RouteBuilder().apply(builder).matcher
 

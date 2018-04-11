@@ -10,6 +10,7 @@ packaging: pom
 
 properties:
   # configure your lambda project here
+  config.lambda.createAPIEndpoints: true
   config.lambda.region: "sa-east-1"
   config.lambda.timeout: 60
   config.lambda.memory: 128
@@ -41,7 +42,7 @@ build:
         - { goals: ["deploy-on-aws-lambda"], phase: "deploy" }
       configuration:
         enabled: true
-        createAPIEndpoints: true
+        createAPIEndpoints: ${config.lambda.createAPIEndpoints}
         regionName:    "${config.lambda.region}"
         lambdaTimeout: "${config.lambda.timeout}"
         lambdaMemory:  "${config.lambda.memory}"

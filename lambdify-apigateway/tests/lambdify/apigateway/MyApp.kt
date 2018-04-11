@@ -5,7 +5,7 @@ import lambdify.apigateway.Methods.*
 /**
  * Created by miere.teixeira on 06/04/2018.
  */
-class MyApp: App({
+class MyApp: APIGatewayApp({
 
     val users = UserResource()
 

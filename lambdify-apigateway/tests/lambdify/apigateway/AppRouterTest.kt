@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 class AppRouterTest {
 
     private val userResource = UserResource()
-    private val app = App({
+    private val app = APIGatewayApp({
 
         notFoundHandler = userResource::customNotFoundHandler
 

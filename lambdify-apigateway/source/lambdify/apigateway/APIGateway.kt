@@ -1,5 +1,7 @@
 package lambdify.apigateway
 
+import kotlin.reflect.KClass
+
 /**
  * Created by miere.teixeira on 06/04/2018.
  */
