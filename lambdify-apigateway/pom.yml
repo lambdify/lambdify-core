@@ -5,7 +5,7 @@ parent: { groupId: io.skullabs.boilerplates, artifactId: kotlin-1.2, version: 1.
 modelVersion: 4.0.0
 groupId: org.lambdify
 artifactId: lambdify-apigateway
-version: 0.1.0.Final
+version: 0.2.0.Final
 packaging: jar
 
 properties:
@@ -17,7 +17,7 @@ properties:
 
 dependencies:
 # Kotlin Dependencies
-- { groupId: org.jetbrains.kotlin,  artifactId: kotlin-stdlib-jdk8 }
+- { groupId: org.jetbrains.kotlin,  artifactId: kotlin-stdlib }
 # AWS Lambda Dependencies
 - { groupId: com.amazonaws,         artifactId: aws-lambda-java-core,   version: "${version.aws-lambda}" }
 # Test Dependencies

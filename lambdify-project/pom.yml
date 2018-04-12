@@ -5,12 +5,12 @@ parent: { groupId: io.skullabs.boilerplates, artifactId: kotlin-1.2, version: 1.
 modelVersion: 4.0.0
 groupId: org.lambdify
 artifactId: lambdify-project
-version: 0.1.0.Final
+version: 0.2.0.Final
 packaging: pom
 
 properties:
   # configure your lambda project here
-  config.lambda.createAPIEndpoints: true
+  config.lambda.api-gateway: true
   config.lambda.region: "sa-east-1"
   config.lambda.timeout: 60
   config.lambda.memory: 128
@@ -24,7 +24,7 @@ properties:
 dependencyManagement:
   dependencies:
     # Lambdify Dependencies
-    - { groupId: org.lambdify,     artifactId: lambdify-apigateway,  version: "0.1.0.Final" }
+    - { groupId: org.lambdify,     artifactId: lambdify-apigateway,  version: "0.2.0.Final" }
     # AWS Lambda Dependencies
     - { groupId: com.amazonaws,    artifactId: aws-lambda-java-core,      version: "${version.aws-lambda}" }
     - { groupId: com.amazonaws,    artifactId: aws-lambda-java-log4j2,    version: "${version.aws-log4j2}" }
@@ -37,12 +37,12 @@ build:
     # Deploys your app as a AWS Lambda Function
     - groupId: org.lambdify
       artifactId: lambdify-plugin
-      version: "0.1.0.Final"
+      version: "0.2.0.Final"
       executions:
         - { goals: ["deploy-on-aws-lambda"], phase: "deploy" }
       configuration:
         enabled: true
-        createAPIEndpoints: ${config.lambda.createAPIEndpoints}
+        createAPIEndpoints: ${config.lambda.api-gateway}
         regionName:    "${config.lambda.region}"
         lambdaTimeout: "${config.lambda.timeout}"
         lambdaMemory:  "${config.lambda.memory}"

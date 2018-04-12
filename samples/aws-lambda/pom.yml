@@ -46,9 +46,9 @@ build:
               com.github.edwgiz.mavenShadePlugin.log4j2CacheTransformer.PluginsCacheFileTransformer: {}
 
     # Deploys your app as a AWS Lambda Function
-    - groupId: ibratan.foss.lambdify
+    - groupId: org.lambdify
       artifactId: lambdify-plugin
-      version: "1.0.0-SNAPSHOT"
+      version: "0.2.0.Final"
       executions:
         - { goals: ["deploy-on-aws-lambda"], phase: "deploy" }
       configuration:

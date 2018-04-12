@@ -1,5 +1,5 @@
 # The chosen project's boilerplates as parent
-parent: { groupId: org.lambdify, artifactId: lambdify-project, version: 0.1.0.Final }
+parent: { groupId: org.lambdify, artifactId: lambdify-project, version: 0.2.0.Final }
 
 # Project definition
 modelVersion: 4.0.0
