@@ -18,7 +18,6 @@ properties:
 
 dependencies:
 # Main Dependencies
-- { groupId: org.jetbrains.kotlin,    artifactId: kotlin-stdlib-jdk8 }
 - { groupId: org.lambdify,            artifactId: lambdify-apigateway }
 # Log4j2 Dependencies (Optional)
 - { groupId: org.apache.logging.log4j,  artifactId: log4j-core }
