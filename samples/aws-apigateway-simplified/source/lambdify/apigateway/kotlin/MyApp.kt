@@ -1,14 +1,11 @@
 package lambdify.apigateway.kotlin
 
-import lambdify.apigateway.APIGatewayRequest
-import lambdify.apigateway.APIGatewayResponse
-import lambdify.apigateway.App
-import lambdify.apigateway.Methods
+import lambdify.apigateway.*
 
 /**
  * Created by miere.teixeira on 08/04/2018.
  */
-class MyApp: App({
+class MyApp: APIGatewayApp({
 
     val userResource = UserResource()
 
