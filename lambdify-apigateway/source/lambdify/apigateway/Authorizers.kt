@@ -23,9 +23,11 @@ package lambdify.apigateway
  *
  * @author Jack Kohn
  */
-data class AuthPolicy(
+class AuthPolicy(
         val principalId: String,
-        @field:Transient val policyDocumentObject: AuthPolicy.PolicyDocument
+        policyDocumentObject: AuthPolicy.PolicyDocument,
+        val context:MutableMap<String,String>? = null,
+        val usageIdentifierKey:String? = null
 ) {
 
     /**
@@ -35,8 +37,7 @@ data class AuthPolicy(
      *
      * @return IAM Policy as a well-formed JSON document
      */
-    val policyDocument: Map<String, Any>
-        get() {
+    val policyDocument: Map<String, Any> by lazy {
             val serializablePolicy = mutableMapOf<String, Any>()
             serializablePolicy[VERSION] = policyDocumentObject.version
             val statements = policyDocumentObject.statement
@@ -51,8 +52,10 @@ data class AuthPolicy(
                 serializableStatementArray[i] = serializableStatement
             }
             serializablePolicy[STATEMENT] = serializableStatementArray
-            return serializablePolicy
+            serializablePolicy
         }
+
+
 
     /**
      * PolicyDocument represents an IAM Policy, specifically for the execute-api:Invoke action
@@ -85,7 +88,15 @@ data class AuthPolicy(
 
         private val allowStatement = Statement.emptyInvokeStatement("Allow")
         private val denyStatement = Statement.emptyInvokeStatement("Deny")
-        private val statements = mutableListOf(allowStatement, denyStatement)
+
+        private val statements by lazy {
+            val l = mutableListOf<Statement>()
+            if ( allowStatement.resource.isNotEmpty() )
+                l.add( allowStatement )
+            if ( denyStatement.resource.isNotEmpty() )
+                l.add( denyStatement )
+            l
+        }
 
         val statement: Array<AuthPolicy.Statement>
             get() = statements.toTypedArray()
@@ -205,23 +216,28 @@ data class AuthPolicy(
  * @author Jack Kohn
  * @author Miere Liniel Teixeira
  */
-data class TokenAuthorizerContext (
-    val type: String,
-    val authorizationToken: String,
-    val methodArn: String ) {
+class TokenAuthorizerContext {
 
-    fun grantPermission( principalId: String ): AuthPolicy {
-        return AuthPolicy(
-            principalId, AuthPolicy.PolicyDocument.allowAllPolicy(
+    var type: String = ""
+    var authorizationToken: String = ""
+    var methodArn: String = ""
+    var httpMethod = "GET"
+    var headers:Map<String, String> = emptyMap()
+    var queryStringParameters:Map<String, String> = emptyMap()
+    var pathParameters:Map<String, String> = emptyMap()
+    var stageVariables:Map<String, String> = emptyMap()
+    var requestContext:Map<String, Any> = emptyMap()
+
+    fun grantPermission( principalId: String, context:MutableMap<String, String>? = null ): AuthPolicy {
+        val policy = AuthPolicy.PolicyDocument.allowAllPolicy(
                 method.region, method.awsAccountId, method.restApiId, method.stage)
-        )
+        return AuthPolicy( principalId, policy, context )
     }
 
-    fun denyPermission( principalId: String ): AuthPolicy {
-        return AuthPolicy(
-                principalId, AuthPolicy.PolicyDocument.denyAllPolicy(
+    fun denyPermission( principalId: String, context:MutableMap<String, String>? = null ): AuthPolicy {
+        val policy = AuthPolicy.PolicyDocument.denyAllPolicy(
                 method.region, method.awsAccountId, method.restApiId, method.stage)
-        )
+        return AuthPolicy( principalId, policy, context )
     }
 
     val method: MethodArn get() {
