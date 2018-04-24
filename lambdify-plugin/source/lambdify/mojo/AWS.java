@@ -1,5 +1,6 @@
 package lambdify.mojo;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import com.amazonaws.services.apigateway.AmazonApiGateway;
@@ -9,6 +10,8 @@ import com.amazonaws.services.lambda.model.*;
 import com.amazonaws.services.lambda.model.Runtime;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.model.*;
+import lombok.experimental.var;
+import lombok.val;
 
 class AWS {
 
@@ -81,15 +84,6 @@ class AWS {
 		}
 	}
 
-	String getRootResourceId(String restApiID ) {
-		try {
-			final GetResourcesRequest request = new GetResourcesRequest().withRestApiId(restApiID).withLimit(1);
-			return first( apiGateway.getResources( request ).getItems() ).getId();
-		} finally {
-			await();
-		}
-	}
-
 	GetFunctionResult getFunction(String name ) {
 		try {
 			final GetFunctionRequest request = new GetFunctionRequest().withFunctionName(name);
@@ -99,7 +93,7 @@ class AWS {
 		}
 	}
 
-	CreateFunctionResult createFunction( String name, String handlerClass, String s3Bucket, String s3Key, int timeout, int memory, String lambdaRole ) {
+    CreateFunctionResult createFunction( String name, String handlerClass, String s3Bucket, String s3Key, int timeout, int memory, String lambdaRole ) {
 		try {
 			final FunctionCode functionCode = new FunctionCode().withS3Bucket( s3Bucket ).withS3Key( s3Key );
 			final CreateFunctionRequest request = new CreateFunctionRequest().withFunctionName(name).withCode(functionCode).withRole(lambdaRole)
@@ -111,14 +105,24 @@ class AWS {
 		}
 	}
 
-	UpdateFunctionCodeResult updateFunction( String name, String s3Bucket, String s3Key ) {
+    UpdateFunctionCodeResult updateFunction( String name, String s3Bucket, String s3Key ) {
 		try {
-			final UpdateFunctionCodeRequest request = new UpdateFunctionCodeRequest().withFunctionName(name).withS3Bucket(s3Bucket).withS3Key(s3Key);
+			final UpdateFunctionCodeRequest request = new UpdateFunctionCodeRequest()
+                    .withFunctionName(name).withS3Bucket(s3Bucket).withS3Key(s3Key);
 			return lambda.updateFunctionCode( request );
 		} finally {
 			await();
 		}
 	}
+
+    DeleteFunctionResult deleteFunction(String lambdaFunctionName) {
+	    try {
+            val request = new DeleteFunctionRequest().withFunctionName(lambdaFunctionName);
+            return lambda.deleteFunction(request);
+        } finally {
+	        await();
+        }
+    }
 
 	CreateRestApiResult createRestApi( String name ){
 		try {
@@ -140,15 +144,58 @@ class AWS {
 		}
 	}
 
+    public String getRootResourceId(String restApiID ) {
+        return findFirstResource(restApiID, r -> "/".equals(r.getPath())).getId();
+    }
+
+    public Resource findFirstResource(String restApiID, Function<Resource, Boolean> condition) {
+        val resources = listResources( restApiID );
+        resources.sort( Comparator.comparing(Resource::getPath).reversed() );
+        return first( resources, condition );
+    }
+
+	public List<Resource> listResources(String restApiID){
+        try {
+            final GetResourcesRequest request = new GetResourcesRequest()
+                    .withRestApiId(restApiID).withLimit(500);
+            return apiGateway.getResources( request ).getItems();
+        } finally {
+            await();
+        }
+    }
+
+    public CreateResourceResult createResourcePath( String restApiID, String path ) {
+        val root = findFirstResource( restApiID, r -> path.contains(r.getPath()) );
+
+        if ( root.getPath().equals( path ) ) {
+            return new CreateResourceResult().withId( root.getId() )
+                .withParentId( root.getParentId() ).withPath( root.getPath() )
+                .withPathPart( root.getPathPart() ).withResourceMethods( root.getResourceMethods() );
+        }
+
+        val tokens = path.replace( root.getPath(), "" ).replaceFirst("/$","").replaceFirst("^/","").split("/");
+        var rootId = root.getId();
+        var result = (CreateResourceResult)null;
+        for ( val token : tokens ) {
+            result = createResource( rootId, restApiID, token );
+            rootId = result.getId();
+        }
+        return result;
+    }
+
 	public CreateResourceResult createProxyResource(String resourceId, String restApiID) {
-		try {
-			final CreateResourceRequest request = new CreateResourceRequest()
-					.withParentId(resourceId).withRestApiId(restApiID).withPathPart("{proxy+}");
-			return apiGateway.createResource( request );
-		} finally {
-			await();
-		}
+		return createResource( resourceId, restApiID, "{proxy+}" );
 	}
+
+    public CreateResourceResult createResource(String resourceId, String restApiID, String path) {
+        try {
+            final CreateResourceRequest request = new CreateResourceRequest()
+                .withParentId(resourceId).withRestApiId(restApiID).withPathPart( path );
+            return apiGateway.createResource( request );
+        } finally {
+            await();
+        }
+    }
 
 	public CreateDeploymentResult deployFunction(String restApiID) {
 		try {
