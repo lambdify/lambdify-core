@@ -4,16 +4,22 @@ parent: { groupId: io.skullabs.boilerplates, artifactId: kotlin-1.2, version: 1.
 # Project definition
 modelVersion: 4.0.0
 groupId: org.lambdify
-artifactId: lambdify-project
+artifactId: lambdify-project-kotlin
 version: 0.2.0.Final
 packaging: pom
 
 properties:
   # configure your lambda project here
-  config.lambda.api-gateway: true
+  config.lambdify.enabled: true
+  config.api-gateway.force-recreate: false
+  config.api-gateway.enabled: true
+  config.api-gateway.appname: "${project.groupId}-${project.artifactId}-${project.version}"
+  config.api-gateway.endpoint: "*"
+  config.lambda.name: "${project.groupId}-${project.artifactId}-${project.version}"
   config.lambda.region: "sa-east-1"
   config.lambda.timeout: 60
   config.lambda.memory: 128
+  config.lambda.force-recreate: false
 
   # versions of libraries used on this project
   version.aws-sdk: 1.11.125
@@ -24,7 +30,7 @@ properties:
 dependencyManagement:
   dependencies:
     # Lambdify Dependencies
-    - { groupId: org.lambdify,     artifactId: lambdify-apigateway,  version: "0.2.0.Final" }
+    - { groupId: org.lambdify,     artifactId: lambdify-apigateway-kotlin,  version: "0.2.0.Final" }
     # AWS Lambda Dependencies
     - { groupId: com.amazonaws,    artifactId: aws-lambda-java-core,      version: "${version.aws-lambda}" }
     - { groupId: com.amazonaws,    artifactId: aws-lambda-java-log4j2,    version: "${version.aws-log4j2}" }
@@ -41,16 +47,21 @@ build:
       executions:
         - { goals: ["deploy-on-aws-lambda"], phase: "deploy" }
       configuration:
-        enabled: true
-        createAPIEndpoints: ${config.lambda.api-gateway}
-        regionName:    "${config.lambda.region}"
-        lambdaTimeout: "${config.lambda.timeout}"
-        lambdaMemory:  "${config.lambda.memory}"
-        s3Bucket:      "${config.lambda.s3bucket}"
-        lambdaRole:    "${config.lambda.role}"
-        handlerClass:  "${config.lambda.class}"
+        enabled: ${config.lambdify.enabled}
+        apiGatewayEnabled: ${config.api-gateway.enabled}
+        apiGatewayName: "${config.api-gateway.appname}"
+        apiGatewayEndpoint: "${config.api-gateway.endpoint}"
+        apiGatewayForceRecreate: ${config.api-gateway.force-recreate}
+        regionName:         "${config.lambda.region}"
+        lambdaFunctionName: "${config.lambda.name}"
+        lambdaTimeout:      "${config.lambda.timeout}"
+        lambdaMemory:       "${config.lambda.memory}"
+        lambdaForceRecreate: ${config.lambda.force-recreate}
+        s3Bucket:           "${config.lambda.s3bucket}"
+        lambdaRole:         "${config.lambda.role}"
+        handlerClass:       "${config.lambda.class}"
 
-    # Create an Uber-jar for your AWS Lambda Function
+    # Create an uber-jar for your AWS Lambda Function
     - groupId: org.apache.maven.plugins
       artifactId: maven-shade-plugin
       version: "2.4.3"
@@ -69,4 +80,3 @@ build:
       artifactId: maven-deploy-plugin
       version: 2.8.2
       configuration: { skip: true }
-

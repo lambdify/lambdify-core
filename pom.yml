@@ -1,0 +1,17 @@
+# The chosen project's boilerplates as parent
+parent: { groupId: io.skullabs.boilerplates, artifactId: kotlin-1.2, version: 1.0.0 }
+
+# Project definition
+modelVersion: 4.0.0
+groupId: org.lambdify
+artifactId: lambdify-parent
+version: 0.2.0.Final
+packaging: pom
+
+modules:
+ - "lambdify-plugin"
+ - "lambdify-apigateway-java"
+ - "lambdify-apigateway-kotlin"
+ - "lambdify-project-java"
+ - "lambdify-project-kotlin"
+ 
