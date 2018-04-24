@@ -1,0 +1,30 @@
+# The chosen project's boilerplates as parent
+parent: { groupId: io.skullabs.boilerplates, artifactId: java-8, version: 1.0.0 }
+
+# Project definition
+modelVersion: 4.0.0
+groupId: org.lambdify
+artifactId: lambdify-apigateway-java
+version: 0.2.0.Final
+packaging: jar
+
+properties:
+  # versions of libraries used on this project
+  version.aws-sdk: 1.11.125
+  version.aws-lambda: 1.1.0
+  version.aws-log4j2: 1.0.0
+  version.log4j2: 2.8.2
+
+dependencies:
+# AWS Lambda Dependencies
+- { groupId: com.amazonaws,         artifactId: aws-lambda-java-core,   version: "${version.aws-lambda}" }
+# Test Dependencies
+- { groupId: org.junit.jupiter,     artifactId: junit-jupiter-engine }
+- { groupId: com.fasterxml.jackson.jr,   artifactId: jackson-jr-objects,   version: "2.9.5",    scope: test }
+- { groupId: org.mockito,           artifactId: mockito-core }
+
+repositories:
+  - { id: jcenter, url: "https://jcenter.bintray.com" }
+pluginRepositories:
+  - { id: jcenter, url: "https://jcenter.bintray.com" }
+
