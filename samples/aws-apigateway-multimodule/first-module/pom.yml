@@ -1,0 +1,21 @@
+parent:
+  groupId: org.lambdify.samples
+  artifactId: aws-apigateway-multimodule
+  version: "0.2.0.Final"
+  relativePath: "../pom.yml"
+
+# Project definition
+modelVersion: 4.0.0
+groupId: org.lambdify.samples
+artifactId: first-module
+version: 0.2.0.Final
+packaging: jar
+
+properties:
+  # Force re-create the API Gateway's routes
+  config.api-gateway.force-recreate: true
+  # API Gateway endpoint that will be created upon deployment
+  config.api-gateway.endpoint: "/first/*"
+  config.lambda.force-recreate: true
+  # Your AWS Lambda main-class
+  config.lambda.class: multimodule.first.App

@@ -1,0 +1,19 @@
+parent:
+  groupId: org.lambdify.samples
+  artifactId: aws-apigateway-multimodule
+  version: "0.2.0.Final"
+  relativePath: "../pom.yml"
+
+# Project definition
+modelVersion: 4.0.0
+groupId: org.lambdify.samples
+artifactId: second-module
+version: 0.2.0.Final
+packaging: jar
+
+properties:
+  # API Gateway endpoint that will be created upon deployment
+  config.api-gateway.endpoint: "/second"
+  config.lambda.force-recreate: true
+  # Your AWS Lambda main-class
+  config.lambda.class: multimodule.second.App

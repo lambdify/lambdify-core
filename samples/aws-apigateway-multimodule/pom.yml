@@ -1,0 +1,30 @@
+parent:
+  groupId: org.lambdify
+  artifactId: lambdify-project-kotlin
+  version: "0.2.0.Final"
+
+# Project definition
+modelVersion: 4.0.0
+groupId: org.lambdify.samples
+artifactId: aws-apigateway-multimodule
+version: "0.2.0.Final"
+packaging: pom
+
+modules:
+ - "first-module"
+ - "second-module"
+
+properties:
+  # Lambda predefined configuration that will be useful for all sub-modules
+  config.lambda.region: "sa-east-1"
+  config.lambda.timeout: 60
+  config.lambda.memory: 128
+  config.lambda.s3bucket: ibratan-deployments
+  config.lambda.role: arn:aws:iam::268326769536:role/ibratan-lambda2
+  config.api-gateway.appname: "my-multi-module-app"
+
+dependencies:
+# Main Dependencies
+- { groupId: org.lambdify,            artifactId: lambdify-apigateway-kotlin }
+# Test Dependencies
+- { groupId: org.junit.jupiter,       artifactId: junit-jupiter-engine }

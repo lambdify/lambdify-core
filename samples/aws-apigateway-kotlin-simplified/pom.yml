@@ -1,10 +1,10 @@
 # The chosen project's boilerplates as parent
-parent: { groupId: org.lambdify, artifactId: lambdify-project, version: 0.2.0.Final }
+parent: { groupId: org.lambdify, artifactId: lambdify-project-kotlin, version: 0.2.0.Final }
 
 # Project definition
 modelVersion: 4.0.0
-groupId: io.skullabs.boilerplates
-artifactId: aws-apigateway-simplified
+groupId: org.lambdify.samples
+artifactId: aws-apigateway-kotlin-simplified
 packaging: jar
 
 properties:
@@ -18,7 +18,7 @@ properties:
 
 dependencies:
 # Main Dependencies
-- { groupId: org.lambdify,            artifactId: lambdify-apigateway }
+- { groupId: org.lambdify,            artifactId: lambdify-apigateway-kotlin }
 # Log4j2 Dependencies (Optional)
 - { groupId: org.apache.logging.log4j,  artifactId: log4j-core }
 - { groupId: org.apache.logging.log4j,  artifactId: log4j-api }

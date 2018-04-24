@@ -1,10 +1,10 @@
-# The chosen project's boilerplates as parent
-parent: { groupId: io.skullabs.boilerplates, artifactId: kotlin-1.2, version: 1.0.0 }
+# Java 8 Project
+parent: { groupId: io.skullabs.boilerplates, artifactId: java-8, version: 1.0.0 }
 
-# Project definition
+# 
 modelVersion: 4.0.0
-groupId: io.skullabs.boilerplates
-artifactId: aws-apigateway
+groupId: org.lambdify.samples
+artifactId: aws-lambda-java8
 packaging: jar
 
 properties:
@@ -13,8 +13,8 @@ properties:
   config.lambda.timeout: 60
   config.lambda.memory: 128
   config.lambda.s3bucket: ibratan-deployments
-  config.lambda.role: arn:aws:iam::123456:role/lambda
-  config.lambda.class: lambdify.apigateway.kotlin.MyApp
+  config.lambda.role: arn:aws:iam::1234567890:role/my-lambda-role
+  config.lambda.class: samples.aws.lambda.HelloWorld
 
   # versions of libraries used on this project
   version.aws-sdk: 1.11.125
@@ -23,11 +23,6 @@ properties:
   version.log4j2: 2.8.2
 
 dependencies:
-# Kotlin Dependencies
-- { groupId: org.jetbrains.kotlin,    artifactId: kotlin-stdlib-jdk8 }
-- { groupId: org.lambdify,            artifactId: lambdify-apigateway,  version: "0.2.0.Final" }
-# Test Dependencies
-- { groupId: org.junit.jupiter,       artifactId: junit-jupiter-engine }
 # AWS Lambda Dependencies
 - { groupId: com.amazonaws,    artifactId: aws-lambda-java-core,      version: "${version.aws-lambda}" }
 - { groupId: com.amazonaws,    artifactId: aws-lambda-java-log4j2,    version: "${version.aws-log4j2}" }
@@ -72,3 +67,6 @@ build:
       artifactId: maven-deploy-plugin
       version: 2.8.2
       configuration: { skip: true }
+      #executions:
+      #- { id: default-deploy, configuration: { skip: true } }
+
