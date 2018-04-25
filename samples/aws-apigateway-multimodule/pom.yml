@@ -20,7 +20,7 @@ properties:
   config.lambda.timeout: 60
   config.lambda.memory: 128
   config.lambda.s3bucket: ibratan-deployments
-  config.lambda.role: arn:aws:iam::268326769536:role/ibratan-lambda2
+  config.lambda.role: arn:aws:iam::268326:role/lambda
   config.api-gateway.appname: "my-multi-module-app"
 
 dependencies:
