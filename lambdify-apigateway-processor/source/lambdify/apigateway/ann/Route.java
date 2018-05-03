@@ -1,4 +1,4 @@
-package lambdify.apigateway.apt;
+package lambdify.apigateway.ann;
 
 import java.lang.annotation.*;
 import lambdify.apigateway.Methods;
