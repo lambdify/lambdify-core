@@ -1,9 +1,7 @@
 package lambdify.apigateway;
 
+import java.util.*;
 import lombok.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A simplified APIGateway API. Contains all information required to
@@ -36,6 +34,44 @@ public interface APIGateway {
             if ( headers == null )
                 headers = new HashMap<>();
             return headers;
+        }
+
+        public <T> T getHeader( String key, Class<T> clazz ) {
+            val value = getHeaders().get( key );
+            return Config.INSTANCE.defaultParamReader.convert( value, clazz );
+        }
+
+        public Map<String, String> getQueryStringsParameters(){
+            if ( queryStringParameters == null )
+                queryStringParameters = new HashMap<>();
+            return queryStringParameters;
+        }
+
+        public <T> T getQueryParam( String key, Class<T> clazz ) {
+            val value = getQueryStringParameters().get( key );
+            return Config.INSTANCE.defaultParamReader.convert( value, clazz );
+        }
+
+        public Map<String, String> getPathParameters(){
+            if ( pathParameters == null )
+                pathParameters = new HashMap<>();
+            return pathParameters;
+        }
+
+        public <T> T getPathParam( String key, Class<T> clazz ) {
+            val value = getPathParameters().get( key );
+            return Config.INSTANCE.defaultParamReader.convert( value, clazz );
+        }
+
+        public Map<String, String> getStageVariables(){
+            if ( stageVariables == null )
+                stageVariables = new HashMap<>();
+            return stageVariables;
+        }
+
+        public <T> T getStageParam( String key, Class<T> clazz ) {
+            val value = getStageVariables().get( key );
+            return Config.INSTANCE.defaultParamReader.convert( value, clazz );
         }
 
         public <T> T getBodyAs( Class<T> type ) {

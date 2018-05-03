@@ -5,7 +5,7 @@ parent: { groupId: io.skullabs.boilerplates, artifactId: kotlin-1.2, version: 1.
 modelVersion: 4.0.0
 groupId: org.lambdify
 artifactId: lambdify-apigateway-kotlin
-version: 0.2.0.Final
+version: 0.3.0.Final
 packaging: jar
 
 properties:
@@ -14,6 +14,7 @@ properties:
   version.aws-lambda: 1.1.0
   version.aws-log4j2: 1.0.0
   version.log4j2: 2.8.2
+  version.kotlin: 1.2.31
 
 dependencies:
 # Kotlin Dependencies

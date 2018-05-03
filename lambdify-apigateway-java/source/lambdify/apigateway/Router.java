@@ -1,28 +1,26 @@
 package lambdify.apigateway;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
-import lambdify.apigateway.APIGateway.Request;
-import lambdify.apigateway.APIGateway.Response;
-import lambdify.apigateway.APIGateway.Serializer;
-import lombok.Value;
-import lombok.experimental.var;
-import lombok.val;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static lambdify.apigateway.URL.compile;
+import java.io.*;
+import java.util.*;
+import com.amazonaws.services.lambda.runtime.*;
+import lambdify.apigateway.APIGateway.*;
+import lambdify.apigateway.APIGatewayAuthorizer.*;
+import lombok.*;
+import lombok.experimental.var;
 
 /**
+ * Defines how a router should behave inside an AWS Lambda application.
+ *
  * Created by miere.teixeira on 18/04/2018.
  */
 public interface Router {
 
+    Entry<Route, LambdaFunction>[] getRoutes();
+
+    /**
+     * Seeks for {@code LambdaFunction}s that matches an specific URL and Http Method.
+     */
     @Value class URLRouter {
 
         final Map<String, List<Entry<URL.URLMatcher, LambdaFunction>>> matchers = new HashMap<>();
@@ -90,6 +88,10 @@ public interface Router {
         }
     }
 
+    /**
+     * The default handler for cases where the request wasn't mapped and
+     * have no predefined response for it.
+     */
     class DefaultNotFoundHandler implements LambdaFunction {
 
         @Override
@@ -98,6 +100,9 @@ public interface Router {
         }
     }
 
+    /**
+     * Defines a Route.
+     */
     @Value class Route {
         final String url;
         final Methods method;
@@ -115,11 +120,27 @@ public interface Router {
         }
     }
 
+    /**
+     * A simple holder for Key and Value.
+     *
+     * @param <K>
+     * @param <V>
+     */
     @Value class Entry<K,V> {
         final K key;
         final V value;
     }
 
+    /**
+     * Represents an Authorizer Function.
+     */
+    interface AuthorizerFunction extends RequestHandler<TokenAuthorizerContext, AuthPolicy> {
+
+    }
+
+    /**
+     * Represents a Lambda Function.
+     */
     interface LambdaFunction extends RequestHandler<Request, Response> {
 
         @Override

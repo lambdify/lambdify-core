@@ -1,18 +1,11 @@
 package lambdify.apigateway;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
-import lambdify.apigateway.APIGateway.Request;
-import lambdify.apigateway.APIGateway.Response;
-import lambdify.apigateway.Router.Entry;
-import lambdify.apigateway.Router.LambdaFunction;
-import lambdify.apigateway.Router.Route;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Accessors;
-import lombok.val;
-
 import java.util.ServiceLoader;
+import com.amazonaws.services.lambda.runtime.*;
+import lambdify.apigateway.APIGateway.*;
+import lambdify.apigateway.Router.*;
+import lombok.*;
+import lombok.experimental.Accessors;
 
 /**
  * A simple AWS Lambda application that handles API Gateway requests.
@@ -24,12 +17,12 @@ public class App implements RequestHandler<Request, Response> {
     /**
      * The request serializers. By default it loads all {@code Serializer}s found at the class path.
      */
-    @Setter Iterable<APIGateway.Serializer> serializers = ServiceLoader.load(APIGateway.Serializer.class);
+    @Setter Iterable<APIGateway.Serializer> serializers;
 
     /**
      * Handles requests which Method and URL does not matches any previously defined route.
      */
-    @Setter LambdaFunction notFoundHandler = new Router.DefaultNotFoundHandler();
+    @Setter LambdaFunction notFoundHandler;
 
     /**
      * The internal router.
@@ -42,8 +35,29 @@ public class App implements RequestHandler<Request, Response> {
      */
     private Router.URLRouter getRouter(){
         if ( router == null )
-            router = new Router.URLRouter(notFoundHandler, serializers);
+            router = new Router.URLRouter(getNotFoundHandler(), getSerializers());
         return router;
+    }
+
+    /**
+     * Lazy loader of {@code notFoundHandler}.
+     *
+     * @return
+     */
+    private LambdaFunction getNotFoundHandler(){
+        if ( notFoundHandler == null )
+            notFoundHandler = new Router.DefaultNotFoundHandler();
+        return notFoundHandler;
+    }
+
+    /**
+     * Lazy loader of {@code serializers}.
+     * @return
+     */
+    private Iterable<Serializer> getSerializers() {
+        if ( serializers == null )
+            serializers = ServiceLoader.load(APIGateway.Serializer.class);
+        return serializers;
     }
 
     /**
@@ -59,6 +73,22 @@ public class App implements RequestHandler<Request, Response> {
     public final App routes(Entry<Route, LambdaFunction>... routes) {
         for ( val route : routes )
             getRouter().memorizeEndpoint( route );
+        return this;
+    }
+
+    /**
+     * Memorize the routers (and its routes). Due to architecture decisions, once you define
+     * a route you can't change how the internal router behaves. If you intent to define your
+     * own {@code notFoundHandler} or even a custom set of serializers you should do this
+     * before you define your first route.
+     *
+     * @param routers
+     * @return
+     */
+    @SafeVarargs
+    public final App routers( Router... routers ) {
+        for ( val router : routers )
+            routes( router.getRoutes() );
         return this;
     }
 
