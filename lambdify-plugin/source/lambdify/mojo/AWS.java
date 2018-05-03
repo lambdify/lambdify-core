@@ -30,55 +30,53 @@ class AWS {
 
 	RestApi getRestApi(String name ){
 		try {
-			final List<RestApi> items = apiGateway.getRestApis(new GetRestApisRequest()).getItems();
+			final List<RestApi> items = apiGateway.getRestApis(new GetRestApisRequest().withLimit( 500 )).getItems();
 			return first( items, i-> name.equals(i.getName()) );
 		} finally {
 			await();
 		}
 	}
 
-	AddPermissionResult addPermissionToInvokeLambdaFunctions(String functionName, String sourceArn) {
+	void addPermissionToInvokeLambdaFunctions(String functionName, String sourceArn) {
 		removePermissionToInvokeLambdaFunction( functionName );
 		try {
 			final AddPermissionRequest request = new AddPermissionRequest().withPrincipal("apigateway.amazonaws.com")
 				.withFunctionName(functionName).withStatementId(functionName + "-lambda-InvokeFunction")
 				.withAction("lambda:InvokeFunction").withSourceArn(sourceArn);
-			return lambda.addPermission( request );
+			lambda.addPermission( request );
 		} finally {
 			await();
 		}
 	}
 
-	private boolean removePermissionToInvokeLambdaFunction(String functionName ) {
+	private void removePermissionToInvokeLambdaFunction(String functionName ) {
 		try {
 			final RemovePermissionRequest request = new RemovePermissionRequest()
 					.withFunctionName(functionName).withStatementId(functionName + "-lambda-InvokeFunction");
 			lambda.removePermission(request);
-			return true;
-		} catch ( ResourceNotFoundException cause ) {
-			return false;
+		} catch ( ResourceNotFoundException ignored ) {
 		} finally {
 			await();
 		}
 	}
 
-	DeleteRestApiResult deleteRestApi(String id) {
+	void deleteRestApi(String id) {
 		try {
 			final DeleteRestApiRequest request = new DeleteRestApiRequest().withRestApiId(id);
-			return apiGateway.deleteRestApi( request );
+			apiGateway.deleteRestApi( request );
 		} finally {
 			await();
 		}
 	}
 
-	PutIntegrationResult assignLambdaToResource( String restApiID, String resourceId, String functionArn, String regionName ) {
+	void assignLambdaToResource(String restApiID, String resourceId, String functionArn, String regionName ) {
 		try {
 			final PutIntegrationRequest request = new PutIntegrationRequest()
 				.withRestApiId(restApiID).withResourceId(resourceId)
 				.withUri("arn:aws:apigateway:"+ regionName +":lambda:path/2015-03-31/functions/"+ functionArn +"/invocations")
 				.withHttpMethod("ANY").withType(IntegrationType.AWS_PROXY)
 				.withIntegrationHttpMethod("POST");
-			return apiGateway.putIntegration( request );
+			apiGateway.putIntegration( request );
 		} finally {
 			await();
 		}
@@ -105,21 +103,21 @@ class AWS {
 		}
 	}
 
-    UpdateFunctionCodeResult updateFunction( String name, String s3Bucket, String s3Key ) {
+    void updateFunction(String name, String s3Bucket, String s3Key ) {
 		try {
 			final UpdateFunctionCodeRequest request = new UpdateFunctionCodeRequest()
                     .withFunctionName(name).withS3Bucket(s3Bucket).withS3Key(s3Key);
-			return lambda.updateFunctionCode( request );
+			lambda.updateFunctionCode( request );
 		} finally {
 			await();
 		}
 	}
 
-    DeleteFunctionResult deleteFunction(String lambdaFunctionName) {
+    void deleteFunction(String lambdaFunctionName) {
 	    try {
             val request = new DeleteFunctionRequest().withFunctionName(lambdaFunctionName);
-            return lambda.deleteFunction(request);
-        } finally {
+		    lambda.deleteFunction( request );
+	    } finally {
 	        await();
         }
     }
@@ -133,28 +131,30 @@ class AWS {
 		}
 	}
 
-	PutMethodResult putMethod( String restApiId, String resourceId ){
+	void putMethod(String restApiId, String resourceId, String authorizerId ){
 		try {
 			final PutMethodRequest request = new PutMethodRequest()
-					.withHttpMethod("ANY").withAuthorizationType("NONE")
+					.withHttpMethod("ANY")
+					.withAuthorizationType( isBlank(authorizerId) ? "NONE" : "CUSTOM" )
+					.withAuthorizerId( isBlank(authorizerId) ? null : authorizerId )
 					.withRestApiId(restApiId).withResourceId(resourceId);
-			return apiGateway.putMethod( request );
+			apiGateway.putMethod( request );
 		} finally {
 			await();
 		}
 	}
 
-    public String getRootResourceId(String restApiID ) {
-        return findFirstResource(restApiID, r -> "/".equals(r.getPath())).getId();
-    }
+	private boolean isBlank(String authorizerId) {
+		return authorizerId == null || authorizerId.isEmpty();
+	}
 
-    public Resource findFirstResource(String restApiID, Function<Resource, Boolean> condition) {
+	private Resource findFirstResource(String restApiID, Function<Resource, Boolean> condition) {
         val resources = listResources( restApiID );
         resources.sort( Comparator.comparing(Resource::getPath).reversed() );
         return first( resources, condition );
     }
 
-	public List<Resource> listResources(String restApiID){
+	private List<Resource> listResources(String restApiID){
         try {
             final GetResourcesRequest request = new GetResourcesRequest()
                     .withRestApiId(restApiID).withLimit(500);
@@ -164,8 +164,9 @@ class AWS {
         }
     }
 
-    public CreateResourceResult createResourcePath( String restApiID, String path ) {
-        val root = findFirstResource( restApiID, r -> path.contains(r.getPath()) );
+    CreateResourceResult createResourcePath( String restApiID, String path ) {
+	    val finalPath = path;
+	    val root = findFirstResource( restApiID, r -> finalPath.contains(r.getPath()) );
 
         if ( root.getPath().equals( path ) ) {
             return new CreateResourceResult().withId( root.getId() )
@@ -173,7 +174,10 @@ class AWS {
                 .withPathPart( root.getPathPart() ).withResourceMethods( root.getResourceMethods() );
         }
 
-        val tokens = path.replace( root.getPath(), "" ).replaceFirst("/$","").replaceFirst("^/","").split("/");
+        if ( !root.getPath().equals( "/" ) )
+        	path = path.replace( root.getPath(), "" );
+
+	    val tokens = path.replaceFirst("/$","").replaceFirst("^/","").split("/");
         var rootId = root.getId();
         var result = (CreateResourceResult)null;
         for ( val token : tokens ) {
@@ -183,11 +187,7 @@ class AWS {
         return result;
     }
 
-	public CreateResourceResult createProxyResource(String resourceId, String restApiID) {
-		return createResource( resourceId, restApiID, "{proxy+}" );
-	}
-
-    public CreateResourceResult createResource(String resourceId, String restApiID, String path) {
+    private CreateResourceResult createResource(String resourceId, String restApiID, String path) {
         try {
             final CreateResourceRequest request = new CreateResourceRequest()
                 .withParentId(resourceId).withRestApiId(restApiID).withPathPart( path );
@@ -197,27 +197,23 @@ class AWS {
         }
     }
 
-	public CreateDeploymentResult deployFunction(String restApiID) {
+	void deployFunction(String restApiID) {
 		try {
 			final CreateDeploymentRequest request = new CreateDeploymentRequest().withRestApiId(restApiID).withStageName("Production");
-			return apiGateway.createDeployment(request);
+			apiGateway.createDeployment( request );
 		} finally {
 			await();
 		}
 	}
 
-	static <T> T first( List<T> list ) {
-		return list.get(0);
-	}
-
-	static <T> T first( Iterable<T> list, Function<T, Boolean> condition ) {
+	private static <T> T first(Iterable<T> list, Function<T, Boolean> condition) {
 		for ( T obj : list )
 			if ( condition.apply( obj ) )
 				return obj;
 		return null;
 	}
 
-	static void await() {
+	private static void await() {
 		try {
 			Thread.sleep( 700 );
 		} catch ( InterruptedException e ) {

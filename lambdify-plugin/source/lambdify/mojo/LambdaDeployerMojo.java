@@ -1,7 +1,9 @@
 package lambdify.mojo;
 
-import com.amazonaws.auth.AWSCredentialsProviderChain;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import java.io.File;
+import java.net.*;
+import java.util.Map;
+import com.amazonaws.auth.*;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClient;
 import com.amazonaws.services.lambda.AWSLambdaClient;
@@ -10,18 +12,10 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
 import lombok.experimental.var;
 import lombok.val;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.*;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
-
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Map;
 
 /**
  *
@@ -40,6 +34,9 @@ public class LambdaDeployerMojo extends AbstractMojo {
 
 	@Parameter( defaultValue = "true", required = true )
 	Boolean apiGatewayEnabled;
+
+	@Parameter
+	String apiGatewayAuthorizerId;
 
     @Parameter( defaultValue = "${project.groupId}-${project.artifactId}-${project.version}", required = true )
     String apiGatewayName;
@@ -199,9 +196,7 @@ public class LambdaDeployerMojo extends AbstractMojo {
 	}
 
     private void pointApiGatewayRequestTo(String restApiID, String functionArn, String apiGatewayEndpoint) {
-        if ( apiGatewayEndpoint.equals("/*") ) {
-            pointEveryApiGatewayRequestTo(restApiID, functionArn);
-        } else if ( apiGatewayEndpoint.endsWith( "/*" ) ) {
+        if ( apiGatewayEndpoint.endsWith( "/*" ) ) {
             apiGatewayEndpoint = apiGatewayEndpoint.replaceFirst("/\\*$", "");
             createEndpointAndAssignFunction( restApiID, functionArn, apiGatewayEndpoint);
             createEndpointAndAssignFunction( restApiID, functionArn, apiGatewayEndpoint + "/{proxy+}");
@@ -212,26 +207,11 @@ public class LambdaDeployerMojo extends AbstractMojo {
     private void createEndpointAndAssignFunction(String restApiID, String functionArn, String apiGatewayEndpoint ){
         var result = aws.createResourcePath( restApiID, apiGatewayEndpoint );
         if ( isEmpty( result.getResourceMethods() ) )
-            aws.putMethod(restApiID, result.getId() );
+            aws.putMethod(restApiID, result.getId(), apiGatewayAuthorizerId );
         aws.assignLambdaToResource(restApiID, result.getId(), functionArn, regionName);
     }
 
     private boolean isEmpty(Map<?,?> result) {
         return result == null || result.isEmpty();
-    }
-
-    private void pointEveryApiGatewayRequestTo(String restApiID, String functionArn ){
-        var resourceId = pointApiGatewayRequestsOnRootTo( restApiID, functionArn );
-        resourceId = aws.createProxyResource(resourceId, restApiID).getId();
-        aws.putMethod(restApiID, resourceId);
-        aws.assignLambdaToResource(restApiID, resourceId, functionArn, regionName);
-    }
-
-    private String pointApiGatewayRequestsOnRootTo(String restApiID, String functionArn ){
-        getLog().info( "  >> Registering '/'" );
-        var resourceId = aws.getRootResourceId( restApiID );
-        aws.putMethod(restApiID, resourceId);
-        aws.assignLambdaToResource(restApiID, resourceId, functionArn, regionName);
-        return resourceId;
     }
 }
