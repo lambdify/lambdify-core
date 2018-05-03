@@ -1,0 +1,30 @@
+# The chosen project's boilerplates as parent
+parent: { groupId: io.skullabs.boilerplates, artifactId: java-8, version: 1.0.0 }
+
+# Project definition
+modelVersion: 4.0.0
+groupId: org.lambdify
+artifactId: lambdify-apigateway-processor
+version: 0.3.0.Final
+packaging: jar
+
+properties:
+  # versions of libraries used on this project
+  version.log4j2: 2.8.2
+
+dependencies:
+- { groupId: org.lambdify,          artifactId: lambdify-apigateway-java, version: 0.3.0.Final }
+- { groupId: com.github.spullara.mustache.java, artifactId: compiler, version: 0.9.5 }
+# Test Dependencies
+- { groupId: org.junit.jupiter,     artifactId: junit-jupiter-engine }
+- { groupId: org.mockito,           artifactId: mockito-core }
+- { groupId: com.google.testing.compile, artifactId: compile-testing, version: 0.10, scope: test }
+
+build:
+  pluginManagement:
+    plugins:
+      - groupId: org.apache.maven.plugins
+        artifactId: maven-compiler-plugin
+        configuration:
+          annotationProcessors:
+            - "lombok.launch.AnnotationProcessorHider$AnnotationProcessor"
