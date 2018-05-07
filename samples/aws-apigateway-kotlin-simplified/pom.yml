@@ -1,5 +1,5 @@
 # The chosen project's boilerplates as parent
-parent: { groupId: org.lambdify, artifactId: lambdify-project-kotlin, version: 0.2.0.Final }
+parent: { groupId: org.lambdify, artifactId: lambdify-project-kotlin, version: 0.3.0.Final }
 
 # Project definition
 modelVersion: 4.0.0
@@ -19,6 +19,7 @@ properties:
 dependencies:
 # Main Dependencies
 - { groupId: org.lambdify,            artifactId: lambdify-apigateway-kotlin }
+- { groupId: org.lambdify,            artifactId: lambdify-apigateway-processor }
 # Log4j2 Dependencies (Optional)
 - { groupId: org.apache.logging.log4j,  artifactId: log4j-core }
 - { groupId: org.apache.logging.log4j,  artifactId: log4j-api }
