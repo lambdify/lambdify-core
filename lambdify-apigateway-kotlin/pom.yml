@@ -1,5 +1,5 @@
 # The chosen project's boilerplates as parent
-parent: { groupId: io.skullabs.boilerplates, artifactId: kotlin-1.2, version: 1.0.0 }
+parent: { groupId: io.skullabs.boilerplates, artifactId: kotlin-1.2, version: 1.0.1 }
 
 # Project definition
 modelVersion: 4.0.0
