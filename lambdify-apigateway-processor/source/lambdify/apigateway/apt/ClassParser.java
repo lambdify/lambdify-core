@@ -11,10 +11,12 @@ import lambdify.apigateway.apt.Generated.*;
  */
 public class ClassParser {
 
-	final Map<String, Type> cachedTypes = new HashMap<>();
+	Map<String, Type> cachedTypes = new HashMap<>();
 
 	Collection<Type> getTypes(){
-		return cachedTypes.values();
+		final ArrayList<Type> types = new ArrayList<>( cachedTypes.values() );
+		cachedTypes = new HashMap<>();
+		return types;
 	}
 
 	void memorizeMethod(ExecutableElement method ) {

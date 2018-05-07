@@ -64,18 +64,12 @@ public class RouteProcessor extends AbstractProcessor {
 	public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
 		final Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith( Route.class );
 		if ( !elements.isEmpty() ) {
-			System.out.println( "Parsing routes..." );
 			for ( Element element : elements )
 				classParser.memorizeMethod( (ExecutableElement) element );
-		} else
-			System.out.println( "No Routes found!" );
-
-		if ( roundEnvironment.processingOver() ) {
-			System.out.println( "Generating classes..." );
 			generateClasses();
 		}
 
-		return false;
+		return true;
 	}
 
 	private void generateClasses() {

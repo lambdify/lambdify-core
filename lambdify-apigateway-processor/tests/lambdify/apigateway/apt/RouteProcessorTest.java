@@ -34,30 +34,6 @@ public class RouteProcessorTest {
 		assertEquals( expectedContent, generatedContent );
 	}
 
-	@Test
-	void canCacheClassesInsideTheProcessorForFurtherUsage() throws IOException {
-		val processor = new RouteProcessor();
-		val compilation = compile( processor, classFile );
-		assertNotNull( compilation );
-
-		val type = processor.classParser.cachedTypes.get( MyAnnotatedResource.class.getCanonicalName() );
-		assertNotNull( type );
-		assertEquals( 4, type.methods.size() );
-
-		assertTrue( type.methods.get( 0 ).isConstructor() );
-
-		assertEquals( 1, type.methods.get( 1 ).annotations.size() );
-		assertEquals( 2, type.methods.get( 1 ).parameters.size() );
-
-		assertEquals( 2, type.methods.get( 2 ).annotations.size() );
-		assertEquals( 1, type.methods.get( 2 ).parameters.size() );
-		assertFalse( type.methods.get( 2 ).isReturnsResponse() );
-
-		assertEquals( 1, type.methods.get( 3 ).annotations.size() );
-		assertEquals( 2, type.methods.get( 3 ).parameters.size() );
-		assertTrue( type.methods.get( 3 ).isReturnsResponse() );
-	}
-
 	@SneakyThrows
 	private Compilation compile(Processor processor, File classFile) {
 		val compiler = javac()
