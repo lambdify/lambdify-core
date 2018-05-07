@@ -1,6 +1,7 @@
 package lambdify.apigateway.apt;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lambdify.apigateway.*;
 import lambdify.apigateway.APIGateway.*;
@@ -13,6 +14,7 @@ import lombok.*;
 public interface Generated {
 
 	String DEFAULT_CONTENT_TYPE = Config.class.getCanonicalName() + ".INSTANCE.defaultContentType";
+	AtomicInteger methodCounter = new AtomicInteger( 0 );
 
 	@Data class Type
 	{
@@ -43,6 +45,7 @@ public interface Generated {
 	@EqualsAndHashCode(callSuper = true)
 	@Data class Method extends Element {
 
+		final int counter = methodCounter.getAndIncrement();
 		boolean constructor;
 		List<Element> parameters = new ArrayList<>();
 

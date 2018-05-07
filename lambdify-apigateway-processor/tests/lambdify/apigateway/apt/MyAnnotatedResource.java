@@ -1,6 +1,7 @@
 package lambdify.apigateway.apt;
 
 import static lambdify.apigateway.Methods.*;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lambdify.apigateway.APIGateway.*;
 import lambdify.apigateway.ann.*;
@@ -24,6 +25,12 @@ public class MyAnnotatedResource {
 	@Route( url = "/api/users", method = POST)
 	@ContentType("application/json")
 	void saveUser( @Body User user ){
+
+	}
+
+	@Route( url = "/api/users", method = PATCH)
+	@ContentType("application/json")
+	void saveUser( @Body Map<String, Object> user ){
 
 	}
 

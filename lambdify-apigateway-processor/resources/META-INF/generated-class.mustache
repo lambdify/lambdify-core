@@ -13,7 +13,7 @@ public class {{generatedSimpleName}} implements lambdify.apigateway.Router {
 		return arrayOf(
 			{{#methodsIterable}}
 				{{^first}},{{/first}} {{#data}}
-				{{route.method}}.and( {{{route.url}}} ).with{{#voidMethod}}NoContent{{/voidMethod}}( this::{{name}} )
+				{{route.method}}.and( {{{route.url}}} ).with{{#voidMethod}}NoContent{{/voidMethod}}( this::{{name}}{{counter}} )
 				{{/data}}
 			{{/methodsIterable}}
 		);
@@ -37,7 +37,7 @@ public class {{generatedSimpleName}} implements lambdify.apigateway.Router {
 	}
 {{/constructor}}
 {{^constructor}}
-	{{^voidMethod}}lambdify.apigateway.APIGateway.Response{{/voidMethod}}{{#voidMethod}}void{{/voidMethod}} {{name}}(
+	{{^voidMethod}}lambdify.apigateway.APIGateway.Response{{/voidMethod}}{{#voidMethod}}void{{/voidMethod}} {{name}}{{counter}}(
 			lambdify.apigateway.APIGateway.Request request ){
 		{{^voidMethod}}return {{^returnsResponse}}lambdify.apigateway.APIGateway.Response.ok({{/returnsResponse}}{{/voidMethod}}this.instance.{{name}}(
 		{{#parameterIterable}}

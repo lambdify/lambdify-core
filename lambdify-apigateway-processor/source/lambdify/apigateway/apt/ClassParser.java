@@ -59,7 +59,7 @@ public class ClassParser {
 	{
 		final Generated.Element param = new Generated.Element()
 				.setName( parameter.getSimpleName().toString() )
-				.setType( parameter.asType().toString() );
+				.setType( getCanonicalName( parameter ) );
 
 		return param.setAnnotations( loadAnnotations( parameter, param ) );
 	}
@@ -83,5 +83,14 @@ public class ClassParser {
 		}
 		return new Generated.Annotation()
 				.setParameters( values ).setType( type );
+	}
+
+	static String getCanonicalName( Element parameter ) {
+		final String simpleName = parameter.asType().toString();
+		return getCanonicalName( simpleName );
+	}
+
+	static String getCanonicalName( String simpleName ) {
+		return simpleName.replaceAll( "<.*", "" );
 	}
 }

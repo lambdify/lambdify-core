@@ -11,9 +11,10 @@ public class MyAnnotatedResourceRouter implements lambdify.apigateway.Router {
 
     public lambdify.apigateway.Router.Entry<lambdify.apigateway.Router.Route, lambdify.apigateway.Router.LambdaFunction>[] getRoutes() {
 		return arrayOf(
-								lambdify.apigateway.Methods.GET.and( "/api/users/:id" ).with( this::getUser )
-				,				lambdify.apigateway.Methods.POST.and( "/api/users" ).withNoContent( this::saveUser )
-				,				lambdify.apigateway.Methods.PUT.and( "/api/users" ).with( this::updateUser )
+								lambdify.apigateway.Methods.GET.and( "/api/users/:id" ).with( this::getUser1 )
+				,				lambdify.apigateway.Methods.POST.and( "/api/users" ).withNoContent( this::saveUser2 )
+				,				lambdify.apigateway.Methods.PATCH.and( "/api/users" ).withNoContent( this::saveUser3 )
+				,				lambdify.apigateway.Methods.PUT.and( "/api/users" ).with( this::updateUser4 )
 		);
 	}
 
@@ -32,7 +33,7 @@ public class MyAnnotatedResourceRouter implements lambdify.apigateway.Router {
 	    this.instance = new lambdify.apigateway.apt.MyAnnotatedResource( semaphore );
 	}
 
-	lambdify.apigateway.APIGateway.Response getUser(
+	lambdify.apigateway.APIGateway.Response getUser1(
 			lambdify.apigateway.APIGateway.Request request ){
 		return lambdify.apigateway.APIGateway.Response.ok(this.instance.getUser(
 							request.getPathParam( "id", java.lang.Long.class )
@@ -40,14 +41,21 @@ public class MyAnnotatedResourceRouter implements lambdify.apigateway.Router {
 		), "");
 	}
 
-	void saveUser(
+	void saveUser2(
 			lambdify.apigateway.APIGateway.Request request ){
 		this.instance.saveUser(
 							request.getBodyAs( lambdify.apigateway.apt.User.class )
 		);
 	}
 
-	lambdify.apigateway.APIGateway.Response updateUser(
+	void saveUser3(
+			lambdify.apigateway.APIGateway.Request request ){
+		this.instance.saveUser(
+							request.getBodyAs( java.util.Map.class )
+		);
+	}
+
+	lambdify.apigateway.APIGateway.Response updateUser4(
 			lambdify.apigateway.APIGateway.Request request ){
 		return this.instance.updateUser(
 							request.getQueryParam( "id", java.lang.Long.class )
