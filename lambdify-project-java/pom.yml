@@ -5,7 +5,7 @@ parent: { groupId: io.skullabs.boilerplates, artifactId: java-8, version: 1.0.0 
 modelVersion: 4.0.0
 groupId: org.lambdify
 artifactId: lambdify-project-java
-version: 0.3.0.Final
+version: 0.4.0.Final
 packaging: pom
 
 properties:
@@ -31,8 +31,8 @@ properties:
 dependencyManagement:
   dependencies:
     # Lambdify Dependencies
-    - { groupId: org.lambdify,     artifactId: lambdify-apigateway-java,  version: "0.3.0.Final" }
-    - { groupId: org.lambdify,     artifactId: lambdify-apigateway-processor,  version: "0.3.0.Final", scope: provided }
+    - { groupId: org.lambdify,     artifactId: lambdify-apigateway-java,  version: "0.4.0.Final" }
+    - { groupId: org.lambdify,     artifactId: lambdify-apigateway-processor,  version: "0.4.0.Final", scope: provided }
     # AWS Lambda Dependencies
     - { groupId: com.amazonaws,    artifactId: aws-lambda-java-core,      version: "${version.aws-lambda}" }
     - { groupId: com.amazonaws,    artifactId: aws-lambda-java-log4j2,    version: "${version.aws-log4j2}" }
@@ -45,7 +45,7 @@ build:
     # Deploys your app as a AWS Lambda Function
     - groupId: org.lambdify
       artifactId: lambdify-plugin
-      version: "0.3.0.Final"
+      version: "0.4.0.Final"
       executions:
         - { goals: ["deploy-on-aws-lambda"], phase: "deploy" }
       configuration:
