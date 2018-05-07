@@ -12,5 +12,5 @@ public @interface Route {
 
 	String url();
 
-	Methods method() default Methods.GET;
+	Methods method();
 }
