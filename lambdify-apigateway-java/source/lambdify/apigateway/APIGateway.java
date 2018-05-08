@@ -11,7 +11,11 @@ import lombok.*;
  */
 public interface APIGateway {
 
-    @Data class Request {
+    /**
+     * Represents an API Gateway request.
+     */
+    @Data
+    class Request {
         String resource;
         String path;
         String httpMethod;
@@ -110,6 +114,9 @@ public interface APIGateway {
         String user;
     }
 
+    /**
+     * Represents an API Gateway response.
+     */
     @Data class Response {
 
         int statusCode = 200;
@@ -143,7 +150,7 @@ public interface APIGateway {
          * @param body
          * @return
          */
-        public Response setBody( String body ){
+        public Response setBody(String body ){
             this.body = body;
             this.unserializedBody = null;
             return this;
