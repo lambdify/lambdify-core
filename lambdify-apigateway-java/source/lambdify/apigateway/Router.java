@@ -83,6 +83,13 @@ public interface Router {
 	}
 
 	/**
+	 * Represents an Authorizer Function.
+	 */
+	interface AuthorizerFunction extends RequestHandler<TokenAuthorizerContext, AuthPolicy> {
+
+	}
+
+	/**
 	 * A simple holder for Key and Value.
 	 *
 	 * @param <K>
