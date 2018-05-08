@@ -5,7 +5,7 @@ import lombok.experimental.Accessors;
 import lombok.val;
 
 @Accessors(fluent = true)
-public class PlainTextSerializer implements APIGateway.Serializer {
+public class PlainTextSerializer implements Serializer {
 
     @Getter final String contentType = "text/plain";
 

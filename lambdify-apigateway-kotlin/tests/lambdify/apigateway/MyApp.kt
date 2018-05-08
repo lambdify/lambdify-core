@@ -2,7 +2,9 @@ package lambdify.apigateway
 
 import lambdify.apigateway.Methods.*
 import lambdify.apigateway.kotlin.App
-import lambdify.apigateway.kotlin.*
+import lambdify.apigateway.kotlin.and
+import lambdify.apigateway.kotlin.with
+import lambdify.apigateway.kotlin.withNoContent
 
 /**
  * Created by miere.teixeira on 06/04/2018.
@@ -25,31 +27,31 @@ open class UserResource {
 
     lateinit var lastExecutedMethod:String
 
-    fun customNotFoundHandler( request: APIGateway.Request ): APIGateway.Response {
+    fun customNotFoundHandler( request: Request ): Response {
         lastExecutedMethod = "customNotFoundHandler"
-        return APIGateway.Response.notFound().apply {
+        return Response.notFound().apply {
             this.headers = mutableMapOf(
                 "X-Custom" to "Not Found"
             )
         }
     }
 
-    fun retrieveUsers( request: APIGateway.Request): APIGateway.Response {
+    fun retrieveUsers( request: Request): Response {
         lastExecutedMethod = "retrieveUsers"
-        return APIGateway.Response.noContent()
+        return Response.noContent()
     }
 
-    fun retrieveSingleUser( request: APIGateway.Request? ): APIGateway.Response {
+    fun retrieveSingleUser( request: Request? ): Response {
         lastExecutedMethod = "retrieveSingleUser"
-        return APIGateway.Response.ok("{'name':'Lambda User'}", "application/json")
+        return Response.ok("{'name':'Lambda User'}", "application/json")
     }
 
-    fun doReportOfUsers(): APIGateway.Response {
+    fun doReportOfUsers(): Response {
         lastExecutedMethod = "doReportOfUsers"
-        return APIGateway.Response.created()
+        return Response.created()
     }
 
-    fun saveUser( request: APIGateway.Request? ) {
+    fun saveUser( request: Request? ) {
         lastExecutedMethod = "saveUser"
     }
 }

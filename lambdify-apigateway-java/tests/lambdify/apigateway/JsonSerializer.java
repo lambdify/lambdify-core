@@ -1,13 +1,12 @@
 package lambdify.apigateway;
 
+import java.io.IOException;
 import com.fasterxml.jackson.jr.ob.JSON;
-import lombok.*;
+import lombok.Getter;
 import lombok.experimental.Accessors;
 
-import java.io.IOException;
-
 @Accessors(fluent = true)
-public class JsonSerializer implements APIGateway.Serializer {
+public class JsonSerializer implements Serializer {
 
     @Getter String contentType = "application/json";
 

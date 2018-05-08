@@ -1,16 +1,26 @@
 package lambdify.apigateway;
 
-import lombok.NonNull;
-import lombok.Value;
-import lombok.val;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
+import lombok.*;
 
-public interface URL {
+@Value
+public class URLMatcher {
+
+    @NonNull final List<CompiledEntry> compiled;
+
+    public boolean matches(List<String> tokens, Map<String,String> ctx ) {
+        if ( tokens.size() == compiled.size() ) {
+            for (int i = 0; i < tokens.size(); i++) {
+                val token = tokens.get(i);
+                val entry = compiled.get(i);
+                if (!entry.apply(token, ctx))
+                    return false;
+            }
+            return true;
+        }
+        return false;
+    }
 
     static URLMatcher compile(String url ) {
         val newTokens = new ArrayList<CompiledEntry>();
@@ -38,25 +48,7 @@ public interface URL {
         }
     }
 
-    @Value class URLMatcher {
-
-        @NonNull final List<CompiledEntry> compiled;
-
-        public boolean matches(List<String> tokens, Map<String,String> ctx ) {
-            if ( tokens.size() == compiled.size() ) {
-                for (int i = 0; i < tokens.size(); i++) {
-                    val token = tokens.get(i);
-                    val entry = compiled.get(i);
-                    if (!entry.apply(token, ctx))
-                        return false;
-                }
-                return true;
-            }
-            return false;
-        }
-    }
-
-    @Value class Equals implements CompiledEntry {
+    @Value static class Equals implements CompiledEntry {
 
         @NonNull final String value;
 
@@ -66,7 +58,7 @@ public interface URL {
         }
     }
 
-    @Value class PlaceHolder implements CompiledEntry {
+    @Value static class PlaceHolder implements CompiledEntry {
 
         @NonNull final String key;
 
@@ -77,5 +69,5 @@ public interface URL {
         }
     }
 
-    interface CompiledEntry extends BiFunction<String, Map<String,String>, Boolean>{}
+    interface CompiledEntry extends BiFunction<String, Map<String,String>, Boolean> {}
 }

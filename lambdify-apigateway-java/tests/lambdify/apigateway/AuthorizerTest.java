@@ -1,18 +1,13 @@
 package lambdify.apigateway;
 
-import com.fasterxml.jackson.jr.ob.JSON;
-import lombok.*;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.util.*;
-
 import static java.lang.System.out;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import java.io.IOException;
+import com.fasterxml.jackson.jr.ob.JSON;
+import lombok.val;
+import org.junit.jupiter.api.*;
 
-public class AuthorizerTest {
+class AuthorizerTest {
     
     String
         request = "{\n" +
@@ -26,7 +21,7 @@ public class AuthorizerTest {
 
     @DisplayName("can parse a json and bind as TokenAuthorizerContext")
     @Test void test1() throws IOException {
-        val token = JSON.std.beanFrom(APIGatewayAuthorizer.TokenAuthorizerContext.class, request);
+        val token = JSON.std.beanFrom(TokenAuthorizerContext.class, request);
         assertEquals( "TOKEN", token.type );
         assertEquals( "AUTH TOKEN", token.authorizationToken );
 
@@ -42,7 +37,7 @@ public class AuthorizerTest {
 
     @DisplayName("grant access from an Authorization Token Request")
     @Test void test2() throws IOException {
-        val token = JSON.std.beanFrom(APIGatewayAuthorizer.TokenAuthorizerContext.class, request);
+        val token = JSON.std.beanFrom(TokenAuthorizerContext.class, request);
         val policy = token.grantPermission( "1" );
         assertNotNull( policy );
         // TODO: improve the result verification, ensuring the policy is right
@@ -51,7 +46,7 @@ public class AuthorizerTest {
 
     @DisplayName("grant access from an Authorization Token Request")
     @Test void test3() throws IOException {
-        val token = JSON.std.beanFrom(APIGatewayAuthorizer.TokenAuthorizerContext.class, request);
+        val token = JSON.std.beanFrom(TokenAuthorizerContext.class, request);
         val policy = token.denyPermission( "1" );
         assertNotNull( policy );
         // TODO: improve the result verification, ensuring the policy is right

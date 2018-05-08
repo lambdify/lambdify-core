@@ -3,7 +3,7 @@ package lambdify.apigateway.apt;
 import static lambdify.apigateway.Methods.*;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import lambdify.apigateway.APIGateway.*;
+import lambdify.apigateway.*;
 import lambdify.apigateway.ann.*;
 
 /**

@@ -1,29 +1,28 @@
 package lambdify.apigateway;
 
-import lombok.val;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import java.util.Arrays;
-import java.util.Collections;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
+import java.util.Collections;
+import lombok.val;
+import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 
-class URLRouterTest {
+class RequestRouterTest {
 
-    APIGateway.Serializer jsonSerializer = new JsonSerializer();
+    Serializer jsonSerializer = new JsonSerializer();
     UserRepository userResource = Mockito.spy( UserRepository.class );
-    Router.URLRouter urlRouter = new Router.URLRouter( new Router.DefaultNotFoundHandler(), Collections.singletonList(jsonSerializer));
+    RequestRouter urlRouter = new RequestRouter(
+        Config.INSTANCE.defaultNotFoundHandler(),
+        Collections.singletonList(jsonSerializer)
+    );
 
     @DisplayName("Can match a single route")
     @Test void test0()
     {
         urlRouter.memorizeEndpoint(Methods.GET.and( "/users" ).withNoContent( userResource::retrieveUsers  ) );
         val endpoint = urlRouter.resolveRoute( request(Methods.GET, "/users" ) );
-        endpoint.invoke( new APIGateway.Request() );
+        endpoint.invoke( new Request() );
         verify(userResource).retrieveUsers( any() );
     }
 
@@ -32,7 +31,7 @@ class URLRouterTest {
     {
         urlRouter.memorizeEndpoint(Methods.GET.and( "/users" ).withNoContent( userResource::retrieveUsers  ) );
         val endpoint = urlRouter.resolveRoute( request(Methods.GET, "/users/" ) );
-        endpoint.invoke( new APIGateway.Request() );
+        endpoint.invoke( new Request() );
         verify(userResource).retrieveUsers( any() );
     }
 
@@ -41,7 +40,7 @@ class URLRouterTest {
     {
         urlRouter.memorizeEndpoint( Methods.GET.and( "/users/:id" ).withNoContent( userResource::retrieveSingleUser  ) );
         val endpoint = urlRouter.resolveRoute( request(Methods.GET, "/users/1" ) );
-        endpoint.invoke( new APIGateway.Request() );
+        endpoint.invoke( new Request() );
         verify(userResource).retrieveSingleUser( any() );
     }
 
@@ -51,7 +50,7 @@ class URLRouterTest {
         urlRouter.memorizeEndpoint( Methods.GET.and( "/users/:id" ).withNoContent( userResource::retrieveSingleUser  ) );
         urlRouter.memorizeEndpoint( Methods.GET.and( "/users" ).withNoContent( userResource::retrieveUsers  ) );
         val endpoint = urlRouter.resolveRoute( request(Methods.GET, "/users/1" ) );
-        endpoint.invoke( new APIGateway.Request() );
+        endpoint.invoke( new Request() );
         verify(userResource).retrieveSingleUser( any() );
     }
 
@@ -106,8 +105,8 @@ class URLRouterTest {
         assertEquals( "[{\"name\":\"User\"}]", resp.body );
     }
 
-    APIGateway.Request request( Methods method, String url ) {
-        val req = new APIGateway.Request();
+    Request request( Methods method, String url ) {
+        val req = new Request();
         req.path = url;
         req.httpMethod = method.toString();
         return req;

@@ -1,12 +1,8 @@
 package lambdify.apigateway;
 
-import lambdify.apigateway.APIGateway.Request;
-import lambdify.apigateway.APIGateway.Response;
-import lombok.*;
-
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
+import static java.util.Collections.*;
 import static lambdify.apigateway.Methods.*;
+import lombok.*;
 
 public class MyApp extends App {{
 

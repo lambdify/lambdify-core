@@ -51,7 +51,7 @@ class AppRouterTest {
     }
 
     fun request( url:String, method:Methods )
-        = APIGateway.Request().apply {
+        = Request().apply {
             this.path = url
             this.httpMethod = method.toString()
         }

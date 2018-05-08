@@ -1,13 +1,9 @@
 package lambdify.apigateway;
 
-import static lambdify.apigateway.URL.compile;
 import java.io.*;
-import java.util.*;
 import com.amazonaws.services.lambda.runtime.*;
-import lambdify.apigateway.APIGateway.*;
-import lambdify.apigateway.APIGatewayAuthorizer.*;
 import lombok.*;
-import lombok.experimental.var;
+import lombok.experimental.Accessors;
 
 /**
  * Defines how a router should behave inside an AWS Lambda application.
@@ -19,95 +15,15 @@ public interface Router {
     Entry<Route, LambdaFunction>[] getRoutes();
 
     /**
-     * Seeks for {@code LambdaFunction}s that matches an specific URL and Http Method.
-     */
-    @Value class URLRouter {
-
-        final Map<String, List<Entry<URL.URLMatcher, LambdaFunction>>> matchers = new HashMap<>();
-
-        final Map<String, Serializer> registeredSerializers;
-        final LambdaFunction notFound;
-
-        public URLRouter( LambdaFunction notFound, Iterable<Serializer> serializers ) {
-            this.notFound = notFound;
-            this.registeredSerializers = new HashMap<>();
-            for ( val serializer : serializers ) {
-                val previous = registeredSerializers.put( serializer.contentType(), serializer );
-                if ( previous != null )
-                    System.err.println( "Overriding previously registered serializer for " + serializer.contentType() );
-            }
-        }
-
-        public Response doRouting(Request req, Context ctx) {
-            val requestContentType = req.getContentType();
-            if ( requestContentType != null ) {
-                val serializer = registeredSerializers.get( requestContentType );
-                req.setSerializer( serializer );
-            }
-
-            val route = resolveRoute( req );
-
-            var response = route.handleRequest( req, ctx );
-            if ( response.requiresSerialization() )
-                response = serialize(response);
-            return response;
-        }
-
-        private Response serialize(Response response) {
-            val serializer = registeredSerializers.get( response.contentType );
-            if ( serializer == null )
-                return Response.internalServerError( "Could not generate a response: no serializer found for " + response.contentType );
-
-            val stringified = serializer.toString( response.unserializedBody );
-            response.setBody( stringified.getContent() );
-            response.setBase64Encoded( stringified.isBase64Encoded() );
-            return response;
-        }
-
-        public LambdaFunction resolveRoute(APIGateway.Request req ) {
-            val found = matchers.computeIfAbsent( req.httpMethod, m -> new ArrayList<>() );
-            val urlTokens = URL.tokenize(req.path);
-            var route = notFound;
-            for ( val entry : found )  {
-                val params = new HashMap<String, String>();
-                if ( entry.key.matches( urlTokens, params ) ) {
-                    route = entry.value;
-                    req.pathParameters = params;
-                    break;
-                }
-            }
-            return route;
-        }
-
-        public void memorizeEndpoint( Entry<Route, LambdaFunction> endpoint ) {
-            val method = endpoint.key.method.toString();
-            val matcher = compile( endpoint.key.url );
-            matchers
-                .computeIfAbsent( method, k -> new ArrayList<>() )
-                .add( new Entry(matcher, endpoint.value) );
-        }
-    }
-
-    /**
-     * The default handler for cases where the request wasn't mapped and
-     * have no predefined response for it.
-     */
-    class DefaultNotFoundHandler implements LambdaFunction {
-
-        @Override
-        public Response invoke(Request input) {
-            return Response.notFound();
-        }
-    }
-
-    /**
      * Defines a Route.
      */
-    @Value class Route {
+    @Value @Accessors(fluent = true)
+    class Route {
+
         final String url;
         final Methods method;
 
-        public Entry<Route, LambdaFunction> with( LambdaSupplier target ) {
+        public Entry<Route, LambdaFunction> with(LambdaSupplier target ) {
             return new Entry<>( this, target );
         }
 
@@ -120,61 +36,61 @@ public interface Router {
         }
     }
 
-    /**
-     * A simple holder for Key and Value.
-     *
-     * @param <K>
-     * @param <V>
-     */
-    @Value class Entry<K,V> {
-        final K key;
-        final V value;
-    }
+	/**
+	 * Represents a Lambda Function.
+	 */
+	interface LambdaFunction extends RequestHandler<Request, Response> {
 
-    /**
-     * Represents an Authorizer Function.
-     */
-    interface AuthorizerFunction extends RequestHandler<TokenAuthorizerContext, AuthPolicy> {
+		@Override
+		default Response handleRequest(Request input, Context context) {
+			try {
+				return invoke(input);
+			} catch ( Throwable cause ) {
+				val writer = new StringWriter();
+				cause.printStackTrace( new PrintWriter(writer));
+				return Response.internalServerError( writer.toString() );
+			}
+		}
 
-    }
+		Response invoke(Request input);
+	}
 
-    /**
-     * Represents a Lambda Function.
-     */
-    interface LambdaFunction extends RequestHandler<Request, Response> {
+	/**
+	 * Represents a Lambda Function that does not produce custom response.
+	 */
+	interface LambdaConsumer extends LambdaFunction {
 
-        @Override
-        default Response handleRequest(Request input, Context context) {
-            try {
-                return invoke(input);
-            } catch ( Throwable cause ) {
-                val writer = new StringWriter();
-                cause.printStackTrace( new PrintWriter(writer));
-                return Response.internalServerError( writer.toString() );
-            }
-        }
+	    @Override
+	    default Response invoke(Request input) {
+	        consume(input);
+	        return Response.noContent();
+	    }
 
-        Response invoke(Request input);
-    }
+	    void consume(Request input);
+	}
 
-    interface LambdaConsumer extends LambdaFunction {
+	/**
+	 * Represents a Lambda Function that only produce custom responses.
+	 */
+	interface LambdaSupplier extends LambdaFunction {
 
-        @Override
-        default Response invoke(Request input) {
-            consume(input);
-            return Response.noContent();
-        }
+	    @Override
+	    default Response invoke(Request input) {
+	        return supply();
+	    }
 
-        void consume(Request input);
-    }
+	    Response supply();
+	}
 
-    interface LambdaSupplier extends LambdaFunction {
-
-        @Override
-        default Response invoke(Request input) {
-            return supply();
-        }
-
-        Response supply();
-    }
+	/**
+	 * A simple holder for Key and Value.
+	 *
+	 * @param <K>
+	 * @param <V>
+	 */
+	@Value @Accessors(fluent = true)
+	class Entry<K,V> {
+		final K key;
+		final V value;
+	}
 }

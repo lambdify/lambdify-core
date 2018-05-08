@@ -1,9 +1,7 @@
 package lambdify.apigateway;
 
-import java.util.ServiceLoader;
+import java.util.*;
 import com.amazonaws.services.lambda.runtime.*;
-import lambdify.apigateway.APIGateway.*;
-import lambdify.apigateway.Router.*;
 import lombok.*;
 import lombok.experimental.Accessors;
 
@@ -17,25 +15,26 @@ public class App implements RequestHandler<Request, Response> {
     /**
      * The request serializers. By default it loads all {@code Serializer}s found at the class path.
      */
-    @Setter Iterable<APIGateway.Serializer> serializers;
+    @Setter Iterable<Serializer> serializers;
 
     /**
-     * Handles requests which Method and URL does not matches any previously defined route.
+     * Handles requests which Method and URLMatcher does not matches any previously defined route.
      */
-    @Setter LambdaFunction notFoundHandler;
+    @Setter
+    Router.LambdaFunction notFoundHandler;
 
     /**
      * The internal router.
      */
-    private Router.URLRouter router;
+    private RequestRouter router;
 
     /**
-     * Lazy loader of the internal {@link Router.URLRouter}.
+     * Lazy loader of the internal {@link RequestRouter}.
      * @return
      */
-    private Router.URLRouter getRouter(){
+    private RequestRouter getRouter(){
         if ( router == null )
-            router = new Router.URLRouter(getNotFoundHandler(), getSerializers());
+            router = new RequestRouter(getNotFoundHandler(), getSerializers());
         return router;
     }
 
@@ -44,9 +43,9 @@ public class App implements RequestHandler<Request, Response> {
      *
      * @return
      */
-    private LambdaFunction getNotFoundHandler(){
+    private Router.LambdaFunction getNotFoundHandler(){
         if ( notFoundHandler == null )
-            notFoundHandler = new Router.DefaultNotFoundHandler();
+            notFoundHandler = Config.INSTANCE.defaultNotFoundHandler();
         return notFoundHandler;
     }
 
@@ -55,8 +54,14 @@ public class App implements RequestHandler<Request, Response> {
      * @return
      */
     private Iterable<Serializer> getSerializers() {
-        if ( serializers == null )
-            serializers = ServiceLoader.load(APIGateway.Serializer.class);
+        if ( serializers == null ) {
+        	val loaded = new ArrayList<Serializer>();
+        	val found = ServiceLoader.load( Serializer.class );
+        	for ( val serialize : found )
+        		loaded.add( serialize );
+	        serializers = loaded;
+        }
+        System.out.println( "serializers = " + serializers );
         return serializers;
     }
 
@@ -70,7 +75,7 @@ public class App implements RequestHandler<Request, Response> {
      * @return
      */
     @SafeVarargs
-    public final App routes(Entry<Route, LambdaFunction>... routes) {
+    public final App routes(Router.Entry<Router.Route, Router.LambdaFunction>... routes) {
         for ( val route : routes )
             getRouter().memorizeEndpoint( route );
         return this;
@@ -85,8 +90,7 @@ public class App implements RequestHandler<Request, Response> {
      * @param routers
      * @return
      */
-    @SafeVarargs
-    public final App routers( Router... routers ) {
+    public final App routers( Router...routers ) {
         for ( val router : routers )
             routes( router.getRoutes() );
         return this;

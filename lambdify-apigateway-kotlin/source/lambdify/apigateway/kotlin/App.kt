@@ -1,11 +1,8 @@
 package lambdify.apigateway.kotlin
 
 import com.amazonaws.services.lambda.runtime.RequestHandler
-import lambdify.apigateway.APIGateway.Request
-import lambdify.apigateway.APIGateway.Response
+import lambdify.apigateway.*
 import lambdify.apigateway.App
-import lambdify.apigateway.Methods
-import lambdify.apigateway.Router
 
 /**
  * Created by miere.teixeira on 06/04/2018.

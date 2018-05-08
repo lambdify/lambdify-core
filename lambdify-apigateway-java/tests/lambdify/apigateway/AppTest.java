@@ -1,11 +1,9 @@
 package lambdify.apigateway;
 
-import lombok.val;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import static lambdify.apigateway.Methods.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import lombok.val;
+import org.junit.jupiter.api.*;
 
 class AppTest {
 
@@ -54,8 +52,8 @@ class AppTest {
         assertEquals( "{'name':'Lambda User'}", response.body );
     }
 
-    APIGateway.Request createRequest( String path, Methods method ) {
-        return new APIGateway.Request()
+    Request createRequest( String path, Methods method ) {
+        return new Request()
             .setPath( path ).setHttpMethod( method.toString() );
     }
 }

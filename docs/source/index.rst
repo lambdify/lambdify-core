@@ -16,6 +16,4 @@ It will help you to design an easily maintable serverless application with low m
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+

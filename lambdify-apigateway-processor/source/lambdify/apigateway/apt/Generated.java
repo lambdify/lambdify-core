@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lambdify.apigateway.*;
-import lambdify.apigateway.APIGateway.*;
 import lambdify.apigateway.ann.*;
 import lombok.*;
 
@@ -13,7 +12,6 @@ import lombok.*;
  */
 public interface Generated {
 
-	String DEFAULT_CONTENT_TYPE = Config.class.getCanonicalName() + ".INSTANCE.defaultContentType";
 	AtomicInteger methodCounter = new AtomicInteger( 0 );
 
 	@Data class Type
@@ -64,7 +62,7 @@ public interface Generated {
 		}
 
 		public boolean isReturnsResponse(){
-			return APIGateway.Response.class.getCanonicalName().equals( type );
+			return Response.class.getCanonicalName().equals( type );
 		}
 
 		public MustacheIterable getParameterIterable(){
