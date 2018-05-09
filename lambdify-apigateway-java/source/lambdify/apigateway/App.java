@@ -1,5 +1,6 @@
 package lambdify.apigateway;
 
+import java.io.*;
 import java.util.*;
 import com.amazonaws.services.lambda.runtime.*;
 import lombok.*;
@@ -8,6 +9,7 @@ import lombok.experimental.Accessors;
 /**
  * A simple AWS Lambda application that handles API Gateway requests.
  */
+@ToString
 @NoArgsConstructor
 @Accessors(fluent = true)
 public class App implements RequestHandler<Request, Response> {
@@ -20,8 +22,7 @@ public class App implements RequestHandler<Request, Response> {
     /**
      * Handles requests which Method and URLMatcher does not matches any previously defined route.
      */
-    @Setter
-    Router.LambdaFunction notFoundHandler;
+    @Setter Router.LambdaFunction notFoundHandler;
 
     /**
      * The internal router.
@@ -106,6 +107,17 @@ public class App implements RequestHandler<Request, Response> {
      */
     @Override
     public Response handleRequest(Request request, Context context) {
-        return getRouter().doRouting( request, context );
+        try {
+            return getRouter().doRouting( request, context );
+        } catch ( Throwable cause ) {
+            val error = new StringWriter();
+            cause.printStackTrace( new PrintWriter( error ) );
+            val errorMsg = error.toString();
+            context.getLogger().log( "Failed to handle request: " + cause.getMessage() );
+            context.getLogger().log( errorMsg );
+            context.getLogger().log( "Global configuration: " + Config.INSTANCE );
+	        context.getLogger().log( "App configuration: " + this );
+            return Response.internalServerError( errorMsg );
+        }
     }
 }
