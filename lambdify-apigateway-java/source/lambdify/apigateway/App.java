@@ -20,11 +20,6 @@ public class App implements RequestHandler<Request, Response> {
     @Setter Iterable<Serializer> serializers;
 
     /**
-     * Handles requests which Method and URLMatcher does not matches any previously defined route.
-     */
-    @Setter Router.LambdaFunction notFoundHandler;
-
-    /**
      * The internal router.
      */
     private RequestRouter router;
@@ -35,19 +30,8 @@ public class App implements RequestHandler<Request, Response> {
      */
     private RequestRouter getRouter(){
         if ( router == null )
-            router = new RequestRouter(getNotFoundHandler(), getSerializers());
+            router = new RequestRouter(getSerializers());
         return router;
-    }
-
-    /**
-     * Lazy loader of {@code notFoundHandler}.
-     *
-     * @return
-     */
-    private Router.LambdaFunction getNotFoundHandler(){
-        if ( notFoundHandler == null )
-            notFoundHandler = Config.INSTANCE.defaultNotFoundHandler();
-        return notFoundHandler;
     }
 
     /**

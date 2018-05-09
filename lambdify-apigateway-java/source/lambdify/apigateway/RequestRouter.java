@@ -16,10 +16,8 @@ public class RequestRouter {
 	final Map<String, List<Entry<URLMatcher, Router.LambdaFunction>>> matchers = new HashMap<>();
 
 	final Map<String, Serializer> registeredSerializers;
-	final Router.LambdaFunction notFound;
 
-	public RequestRouter(Router.LambdaFunction notFound, Iterable<Serializer> serializers) {
-		this.notFound = notFound;
+	public RequestRouter(Iterable<Serializer> serializers) {
 		this.registeredSerializers = new HashMap<>();
 		for ( val serializer : serializers ) {
 			val previous = registeredSerializers.put( serializer.contentType(), serializer );
@@ -74,7 +72,7 @@ public class RequestRouter {
 	public Router.LambdaFunction resolveRoute(Request req) {
 		val found = matchers.computeIfAbsent( req.httpMethod, m -> new ArrayList<>() );
 		val urlTokens = URLMatcher.tokenize( req.path );
-		var route = notFound;
+		var route = Config.INSTANCE.defaultNotFoundHandler();
 		for ( val entry : found ) {
 			val params = new HashMap<String, String>();
 			if ( entry.key().matches( urlTokens, params ) ) {
