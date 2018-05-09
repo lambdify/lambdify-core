@@ -29,6 +29,7 @@ public class RequestRouter {
 	}
 
 	public Response doRouting(Request req, Context ctx) {
+		normalizeHeaders( req );
 		val requestContentType = req.getContentType();
 		if ( requestContentType != null ) {
 			val serializer = registeredSerializers.get( requestContentType );
@@ -41,6 +42,13 @@ public class RequestRouter {
 		if ( response.requiresSerialization() )
 			response = serialize( response );
 		return response;
+	}
+
+	private void normalizeHeaders(Request req) {
+		val newHeaders = new HashMap<String, String>();
+		for ( val entry : req.getHeaders().entrySet() )
+			newHeaders.put( entry.getKey().toLowerCase(), entry.getValue() );
+		req.setHeaders( newHeaders );
 	}
 
 	private Response serialize(Response response) {
@@ -83,7 +91,7 @@ public class RequestRouter {
 		val matcher = compile( endpoint.key().url() );
 		matchers
 				.computeIfAbsent( method, k -> new ArrayList<>() )
-				.add( new Entry( matcher, endpoint.value() ) );
+				.add( new Entry<>( matcher, endpoint.value() ) );
 	}
 
 

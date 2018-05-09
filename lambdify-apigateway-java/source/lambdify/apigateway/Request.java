@@ -23,7 +23,7 @@ public class Request
 	@Setter transient Serializer serializer;
 
 	public String getContentType(){
-		return getHeaders().get( "Content-Type" );
+		return getHeaders().get( "content-type" );
 	}
 
 	public Map<String, String> getHeaders(){
