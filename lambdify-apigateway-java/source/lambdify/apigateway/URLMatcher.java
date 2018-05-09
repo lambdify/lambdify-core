@@ -27,7 +27,7 @@ public class URLMatcher {
         for ( val it : tokenize(url) ) {
             newTokens.add(
                 ( it.length() > 1 && it.charAt(1) == ':' )
-                    ? new PlaceHolder(it.substring(1))
+                    ? new PlaceHolder(it.substring(2))
                     : new Equals(it) );
         }
         return new URLMatcher(newTokens);
@@ -64,7 +64,7 @@ public class URLMatcher {
 
         @Override
         public Boolean apply(String value, Map<String, String> ctx) {
-            ctx.put(key, value);
+            ctx.put(key, value.substring( 1 ));
             return true;
         }
     }

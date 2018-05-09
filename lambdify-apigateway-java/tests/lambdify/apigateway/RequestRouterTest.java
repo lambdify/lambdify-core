@@ -1,6 +1,7 @@
 package lambdify.apigateway;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import java.util.Collections;
@@ -38,8 +39,12 @@ class RequestRouterTest {
     @DisplayName("Can match a route with a place holder")
     @Test void test2()
     {
-        urlRouter.memorizeEndpoint( Methods.GET.and( "/users/:id" ).withNoContent( userResource::retrieveSingleUser  ) );
-        val endpoint = urlRouter.resolveRoute( request(Methods.GET, "/users/1" ) );
+        urlRouter.memorizeEndpoint( Methods.GET.and( "/users/sub/:id" ).withNoContent( userResource::retrieveSingleUser  ) );
+        val request = request(Methods.GET, "/users/sub/123" );
+        val endpoint = urlRouter.resolveRoute( request );
+        assertTrue( request.pathParameters.containsKey( "id" ) );
+        assertEquals( "123", request.pathParameters.get("id") );
+
         endpoint.invoke( new Request() );
         verify(userResource).retrieveSingleUser( any() );
     }
@@ -101,6 +106,15 @@ class RequestRouterTest {
     @Test void test7(){
         urlRouter.memorizeEndpoint(Methods.GET.and( "/users" ).with( userResource::retrieveUsers ) );
         val req = request(Methods.GET, "/users" );
+        val resp = urlRouter.doRouting( req, null );
+        assertEquals( "[{\"name\":\"User\"}]", resp.body );
+    }
+
+    @DisplayName("Can match the root URL in cases where a 'slash' plus 'place holder' exists")
+    @Test void test8(){
+        urlRouter.memorizeEndpoint(Methods.GET.and( "/" ).with( userResource::retrieveUsers ) );
+        urlRouter.memorizeEndpoint(Methods.GET.and( "/:any" ).with( userResource::createReportOfUsers ) );
+        val req = request(Methods.GET, "/" );
         val resp = urlRouter.doRouting( req, null );
         assertEquals( "[{\"name\":\"User\"}]", resp.body );
     }

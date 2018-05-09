@@ -53,9 +53,6 @@ public class RequestRouter {
 
 	private Response serialize(Response response) {
 		val serializer = getResponseSerializer( response );
-		if ( serializer == null )
-			return Response.internalServerError( "Could not generate a response: no serializer found for " + response.contentType );
-
 		val stringified = serializer.toString( response.unserializedBody );
 		response.setBody( stringified.getContent() );
 		response.setBase64Encoded( stringified.isBase64Encoded() );
@@ -64,11 +61,14 @@ public class RequestRouter {
 
 	private Serializer getResponseSerializer(Response response) {
 		var contentType = response.contentType;
-		if ( contentType == null ) {
-			contentType = Config.INSTANCE.defaultContentType;
+		if ( contentType == null || contentType.isEmpty() ) {
+			contentType = Config.INSTANCE.defaultContentType();
 			System.out.println( "No content type defined. Using default: " + contentType );
 		}
-		return registeredSerializers.get( contentType );
+		val serializer = registeredSerializers.get( contentType );
+		if ( serializer == null )
+			throw new RuntimeException( "Could not generate a response: no serializer found for " + contentType );
+		return serializer;
 	}
 
 	public Router.LambdaFunction resolveRoute(Request req) {
