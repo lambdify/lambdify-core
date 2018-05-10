@@ -81,15 +81,14 @@ public class LambdaDeployerMojo extends AbstractMojo {
 	String handlerClass;
 
 	@Override
-	public void execute() throws MojoFailureException {
+	public void execute() throws MojoFailureException, MojoExecutionException {
         if ( !project.getPackaging().equals( "jar" ) || !enabled ) return;
 
         getLog().info( "Lambdify Deployer" );
         configureAWS();
 
-        val packageFile = getJarFile();
-        checkIfPackageExists( packageFile );
-        checkIfClassExists( packageFile, handlerClass );
+		checkIfClassExists( handlerClass );
+        val packageFile = getPackageFile();
 		uploadPackage( packageFile );
 
 		val parsedLambdaFunctionName = lambdaFunctionName.replaceAll( "[._]", "-" );
@@ -100,26 +99,38 @@ public class LambdaDeployerMojo extends AbstractMojo {
 			createRestAPI( parsedLambdaFunctionName, parsedApiGatewayName, lambdaFunction );
 	}
 
-    private void checkIfPackageExists(File packageFile) throws MojoFailureException {
-        if ( !packageFile.exists() )
-            throw new MojoFailureException("Package not found: " + packageFile.getName());
-    }
-
-    private void checkIfClassExists(File packageFile, String handlerClass) throws MojoFailureException {
+    private void checkIfClassExists(String handlerClass) throws MojoFailureException {
         try {
             getLog().info( "  >> Checking handler class '" + handlerClass + "'..." );
-            val dirUrl = packageFile.toURI().toURL();
-            val cl = new URLClassLoader(new URL[] {dirUrl}, getClass().getClassLoader());
+	        val jarFile = targetDirectory.getAbsolutePath() + File.separatorChar + jarFileName;
+            val cl = new URLClassLoader( getClassPathFor( jarFile ), getClass().getClassLoader());
             cl.loadClass( handlerClass );
         } catch (MalformedURLException e) {
-            throw new MojoFailureException(e.getMessage());
+            throw new MojoFailureException(e.getMessage(),e);
         } catch (ClassNotFoundException e) {
-            throw new MojoFailureException( "The specified class does not exists: " + handlerClass );
+            throw new MojoFailureException( "The specified class does not exists: " + handlerClass,e );
         }
     }
 
-    private File getJarFile(){
-		return new File( targetDirectory.getAbsolutePath() + File.separatorChar + jarFileName );
+    private URL[] getClassPathFor( String jarFileName ) throws MalformedURLException {
+		val classPathSize = project.getArtifacts().size();
+		val classPath = new URL[ classPathSize + 1 ];
+		var i = 1;
+	    for ( val artifact : project.getArtifacts() ) {
+		    classPath[i++] = artifact.getFile().toURI().toURL();
+	    }
+	    classPath[0] = new File( jarFileName ).toURI().toURL();
+	    return classPath;
+    }
+
+    private File getPackageFile() throws MojoExecutionException {
+		val jarFile = targetDirectory.getAbsolutePath() + File.separatorChar + jarFileName;
+		val zipFile = targetDirectory.getAbsolutePath() + File.separatorChar + "lambda-package.zip";
+		try ( val zipPackage = new ZipPackager( zipFile ) ) {
+			zipPackage.copyDependenciesToZip( project );
+			zipPackage.copyFilesFromJarToZip( jarFile );
+		}
+		return new File( zipFile );
 	}
 
 	private void uploadPackage( File packageFile ) {

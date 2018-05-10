@@ -64,20 +64,6 @@ build:
         lambdaRole:         "${config.lambda.role}"
         handlerClass:       "${config.lambda.class}"
 
-    # Create an uber-jar for your AWS Lambda Function
-    - groupId: org.apache.maven.plugins
-      artifactId: maven-shade-plugin
-      version: "2.4.3"
-      dependencies:
-        - { groupId: com.github.edwgiz, artifactId: maven-shade-plugin.log4j2-cachefile-transformer, version: 2.8.1 }
-      executions:
-        - goals: ["shade"]
-          phase: "package"
-          configuration:
-            dependencyReducedPomLocation: "${project.build.directory}/shaded-pom.xml"
-            transformers:
-              com.github.edwgiz.mavenShadePlugin.log4j2CacheTransformer.PluginsCacheFileTransformer: {}
-
     # Disabling the default deployment plugin
     - groupId: org.apache.maven.plugins
       artifactId: maven-deploy-plugin
