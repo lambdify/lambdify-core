@@ -34,7 +34,7 @@ public class Request
 
 	public <T> T getHeader( String key, Class<T> clazz ) {
 		val value = getHeaders().get( key );
-		return Config.INSTANCE.defaultParamReader().convert( value, clazz );
+		return Config.INSTANCE.paramReader().convert( value, clazz );
 	}
 
 	public Map<String, String> getQueryStringsParameters(){
@@ -45,7 +45,7 @@ public class Request
 
 	public <T> T getQueryParam( String key, Class<T> clazz ) {
 		val value = getQueryStringParameters().get( key );
-		return Config.INSTANCE.defaultParamReader().convert( value, clazz );
+		return Config.INSTANCE.paramReader().convert( value, clazz );
 	}
 
 	public Map<String, String> getPathParameters(){
@@ -56,7 +56,7 @@ public class Request
 
 	public <T> T getPathParam( String key, Class<T> clazz ) {
 		val value = getPathParameters().get( key );
-		return Config.INSTANCE.defaultParamReader().convert( value, clazz );
+		return Config.INSTANCE.paramReader().convert( value, clazz );
 	}
 
 	public Map<String, String> getStageVariables(){
@@ -67,7 +67,7 @@ public class Request
 
 	public <T> T getStageParam( String key, Class<T> clazz ) {
 		val value = getStageVariables().get( key );
-		return Config.INSTANCE.defaultParamReader().convert( value, clazz );
+		return Config.INSTANCE.paramReader().convert( value, clazz );
 	}
 
 	public <T> T getBodyAs( Class<T> type ) {
