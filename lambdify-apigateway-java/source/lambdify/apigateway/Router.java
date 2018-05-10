@@ -1,8 +1,7 @@
 package lambdify.apigateway;
 
-import java.io.*;
 import com.amazonaws.services.lambda.runtime.*;
-import lombok.*;
+import lombok.Value;
 import lombok.experimental.Accessors;
 
 /**
@@ -43,13 +42,7 @@ public interface Router {
 
 		@Override
 		default Response handleRequest(Request input, Context context) {
-			try {
-				return invoke(input);
-			} catch ( Throwable cause ) {
-				val writer = new StringWriter();
-				cause.printStackTrace( new PrintWriter(writer));
-				return Response.internalServerError( writer.toString() );
-			}
+			return invoke(input);
 		}
 
 		Response invoke(Request input);
