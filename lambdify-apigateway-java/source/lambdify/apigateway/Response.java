@@ -60,23 +60,19 @@ public class Response {
 	}
 
 	public static Response notFound() {
-		return new Response().setStatusCode( 404 ).setContentType( Config.INSTANCE.defaultContentType() );
+		return new Response().setStatusCode( 404 );
 	}
 
 	public static Response noContent() {
-		return new Response().setStatusCode( 204 ).setContentType( Config.INSTANCE.defaultContentType() );
+		return new Response().setStatusCode( 204 );
 	}
 
 	public static Response created() {
-		return new Response().setStatusCode( 201 ).setContentType( Config.INSTANCE.defaultContentType() );
+		return new Response().setStatusCode( 201 );
 	}
 
 	public static Response accepted() {
-		return new Response().setStatusCode( 202 ).setContentType( Config.INSTANCE.defaultContentType() );
-	}
-
-	public static Response ok() {
-		return new Response().setStatusCode( 200 ).setContentType( Config.INSTANCE.defaultContentType() );
+		return new Response().setStatusCode( 202 );
 	}
 
 	public static Response ok(String body) {
@@ -102,8 +98,8 @@ public class Response {
 				.setBody( body );
 	}
 
-	public static Response internalServerError(String errorMessage) {
+	public static Response internalServerError(String errorMessage ) {
 		return new Response().setStatusCode( 500 ).setBody( errorMessage )
-				.setContentType( Config.INSTANCE.defaultContentType() );
+				.setContentType( "text/plain" );
 	}
 }
