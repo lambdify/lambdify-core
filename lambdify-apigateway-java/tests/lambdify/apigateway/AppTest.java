@@ -7,18 +7,23 @@ import org.junit.jupiter.api.*;
 
 class AppTest {
 
-    private UserRepository userResource = new UserRepository();
-    private App app = new App(){{
+    private App app;
 
-        notFoundHandler( userResource::customNotFoundHandler );
+    @BeforeEach void setupApp()
+    {
+        val userResource = new UserRepository();
 
-        routes(
-            GET.and("/users").with(userResource::retrieveUsers),
-            GET.and("/users/:id").with(userResource::retrieveSingleUser),
-            PATCH.and("/users").with(userResource::createReportOfUsers),
-            POST.and("/users").withNoContent(userResource::saveUser)
-        );
-    }};
+        Config.INSTANCE.defaultNotFoundHandler( userResource::customNotFoundHandler );
+
+        app = new App(){{
+            routes(
+                GET.and("/users").with(userResource::retrieveUsers),
+                GET.and("/users/:id").with(userResource::retrieveSingleUser),
+                PATCH.and("/users").with(userResource::createReportOfUsers),
+                POST.and("/users").withNoContent(userResource::saveUser)
+            );
+        }};
+    }
 
     @DisplayName( "Can handle URLs that not matches any endpoint" )
     @Test void test1(){

@@ -1,5 +1,6 @@
 package lambdify.apigateway;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Matchers.any;
@@ -13,10 +14,7 @@ class RequestRouterTest {
 
     Serializer jsonSerializer = new JsonSerializer();
     UserRepository userResource = Mockito.spy( UserRepository.class );
-    RequestRouter urlRouter = new RequestRouter(
-        Config.INSTANCE.defaultNotFoundHandler(),
-        Collections.singletonList(jsonSerializer)
-    );
+    RequestRouter urlRouter = new RequestRouter( singletonList(jsonSerializer) );
 
     @DisplayName("Can match a single route")
     @Test void test0()

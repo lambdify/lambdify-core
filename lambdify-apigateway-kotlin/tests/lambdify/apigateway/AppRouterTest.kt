@@ -17,7 +17,9 @@ class AppRouterTest {
     class MyApp: App({
 
         val userResource = UserResource()
-        notFoundHandler( userResource::customNotFoundHandler )
+
+        Config.INSTANCE.defaultNotFoundHandler( userResource::customNotFoundHandler )
+
         routes(
             GET and "/users" with userResource::retrieveUsers,
             GET and "/users/:id" with userResource::retrieveSingleUser,

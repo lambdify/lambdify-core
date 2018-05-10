@@ -13,7 +13,7 @@ class MyApp: App({
 
     val users = UserResource()
 
-    notFoundHandler( users::customNotFoundHandler )
+    Config.INSTANCE.defaultNotFoundHandler( users::customNotFoundHandler )
 
     routes(
         GET and "/users" with users::retrieveUsers,
