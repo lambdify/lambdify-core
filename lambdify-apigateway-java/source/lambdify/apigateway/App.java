@@ -1,7 +1,6 @@
 package lambdify.apigateway;
 
 import java.io.*;
-import java.util.*;
 import com.amazonaws.services.lambda.runtime.*;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -15,11 +14,6 @@ import lombok.experimental.Accessors;
 public class App implements RequestHandler<Request, Response> {
 
     /**
-     * The request serializers. By default it loads all {@code Serializer}s found at the class path.
-     */
-    @Setter Iterable<Serializer> serializers;
-
-    /**
      * The internal router.
      */
     private RequestRouter router;
@@ -30,24 +24,8 @@ public class App implements RequestHandler<Request, Response> {
      */
     private RequestRouter getRouter(){
         if ( router == null )
-            router = new RequestRouter(getSerializers());
+            router = new RequestRouter(Config.INSTANCE.getSerializers());
         return router;
-    }
-
-    /**
-     * Lazy loader of {@code serializers}.
-     * @return
-     */
-    private Iterable<Serializer> getSerializers() {
-        if ( serializers == null ) {
-        	val loaded = new ArrayList<Serializer>();
-        	val found = ServiceLoader.load( Serializer.class );
-        	for ( val serialize : found )
-        		loaded.add( serialize );
-	        serializers = loaded;
-        }
-        System.out.println( "serializers = " + serializers );
-        return serializers;
     }
 
     /**
