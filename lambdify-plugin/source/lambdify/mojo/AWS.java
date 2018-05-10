@@ -75,6 +75,7 @@ class AWS {
 				.withRestApiId(restApiID).withResourceId(resourceId)
 				.withUri("arn:aws:apigateway:"+ regionName +":lambda:path/2015-03-31/functions/"+ functionArn +"/invocations")
 				.withHttpMethod("ANY").withType(IntegrationType.AWS_PROXY)
+				.withContentHandling( ContentHandlingStrategy.CONVERT_TO_TEXT )
 				.withIntegrationHttpMethod("POST");
 			apiGateway.putIntegration( request );
 		} finally {
