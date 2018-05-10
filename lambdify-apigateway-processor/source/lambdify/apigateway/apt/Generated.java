@@ -57,6 +57,13 @@ public interface Generated {
 			);
 		}
 
+		public String getContentType(){
+			final Annotation annotation = getAnnotation( ContentType.class );
+			if ( annotation != null )
+				return String.valueOf( annotation.getValue() );
+			return "\"\"";
+		}
+
 		public boolean isVoidMethod(){
 			return "void".equals( type );
 		}
@@ -119,6 +126,7 @@ public interface Generated {
 		}
 	}
 
+	@EqualsAndHashCode( exclude = "parent" )
 	@Data class Annotation {
 		Element parent;
 		String type;

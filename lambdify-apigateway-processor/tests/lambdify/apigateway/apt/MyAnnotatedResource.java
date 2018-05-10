@@ -30,8 +30,8 @@ public class MyAnnotatedResource {
 
 	@Route( url = "/api/users", method = PATCH)
 	@ContentType("application/json")
-	void saveUser( @Body Map<String, Object> user ){
-
+	long saveUser( @Body Map<String, Object> user ){
+		return System.currentTimeMillis(); // fake generated id.
 	}
 
 	@Route( url = "/api/users", method = PUT)

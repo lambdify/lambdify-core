@@ -60,7 +60,7 @@ public class {{generatedSimpleName}} implements lambdify.apigateway.Router {
 			{{/APIGatewayRequest}}
 			{{/data}}
 		{{/parameterIterable}}
-		){{^voidMethod}}{{^returnsResponse}}, "{{contentType}}"){{/returnsResponse}}{{/voidMethod}};
+		){{^voidMethod}}{{^returnsResponse}}, {{{contentType}}}){{/returnsResponse}}{{/voidMethod}};
 	}
 {{/constructor}}
 

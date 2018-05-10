@@ -14,7 +14,7 @@ public class MyAnnotatedResourceRouter implements lambdify.apigateway.Router {
 		return arrayOf(
 								lambdify.apigateway.Methods.GET.and( "/api/users/:id" ).with( this::getUser1 )
 				,				lambdify.apigateway.Methods.POST.and( "/api/users" ).withNoContent( this::saveUser2 )
-				,				lambdify.apigateway.Methods.PATCH.and( "/api/users" ).withNoContent( this::saveUser3 )
+				,				lambdify.apigateway.Methods.PATCH.and( "/api/users" ).with( this::saveUser3 )
 				,				lambdify.apigateway.Methods.PUT.and( "/api/users" ).with( this::updateUser4 )
 		);
 	}
@@ -49,11 +49,11 @@ public class MyAnnotatedResourceRouter implements lambdify.apigateway.Router {
 		);
 	}
 
-	void saveUser3(
+	lambdify.apigateway.Response saveUser3(
 			lambdify.apigateway.Request request ){
-		this.instance.saveUser(
+		return lambdify.apigateway.Response.ok(this.instance.saveUser(
 							request.getBodyAs( java.util.Map.class )
-		);
+		), "application/json");
 	}
 
 	lambdify.apigateway.Response updateUser4(
