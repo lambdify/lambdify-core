@@ -2,6 +2,7 @@ package lambdify.apigateway;
 
 import static java.util.Collections.*;
 import static lambdify.apigateway.Methods.*;
+import com.amazonaws.services.lambda.runtime.events.*;
 import lombok.*;
 
 public class MyApp extends App {{
@@ -18,28 +19,28 @@ public class MyApp extends App {{
 
 class UserRepository {
 
-    Response customNotFoundHandler( Request request ) {
-        return Response.notFound()
-            .setHeaders( singletonMap( "X-Custom", "Not Found" ) );
+    APIGatewayProxyResponseEvent customNotFoundHandler( APIGatewayProxyRequestEvent request ) {
+        return Responses.notFound()
+            .withHeaders( singletonMap( "X-Custom", "Not Found" ) );
     }
 
-    Response retrieveUsers( Request request ) {
-        return Response.ok( singletonList(new User("User") ), "application/json" );
+    APIGatewayProxyResponseEvent retrieveUsers( APIGatewayProxyRequestEvent request ) {
+        return Responses.ok( singletonList(new User("User") ), "application/json" );
     }
 
-    Response retrieveSingleUser( Request request ) {
-        return Response.ok( "{'name':'Lambda User'}", "application/json" );
+    APIGatewayProxyResponseEvent retrieveSingleUser( APIGatewayProxyRequestEvent request ) {
+        return Responses.ok( "{'name':'Lambda User'}", "application/json" );
     }
 
-    Response createReportOfUsers(){
-        return Response.created();
+    APIGatewayProxyResponseEvent createReportOfUsers(){
+        return Responses.created();
     }
 
-    void saveUser( Request request ) {}
+    void saveUser( APIGatewayProxyRequestEvent request ) {}
 
-    Response updateUser(Request request ){
-        val user = request.getBodyAs( User.class );
-        return Response.ok( user.getName(), "plain/text" );
+    APIGatewayProxyResponseEvent updateUser( APIGatewayProxyRequestEvent request ){
+        val user = RequestParameterReader.getBodyAs( request, User.class );
+        return Responses.ok( user.getName(), "plain/text" );
     }
 
     @NoArgsConstructor

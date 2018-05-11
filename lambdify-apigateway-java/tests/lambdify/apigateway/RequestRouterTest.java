@@ -1,27 +1,32 @@
 package lambdify.apigateway;
 
-import static java.util.Collections.singletonList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static java.util.Collections.singletonMap;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import java.util.Collections;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import lombok.val;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
 class RequestRouterTest {
 
-    Serializer jsonSerializer = new JsonSerializer();
     UserRepository userResource = Mockito.spy( UserRepository.class );
-    RequestRouter urlRouter = new RequestRouter( singletonList(jsonSerializer) );
+    RequestRouter urlRouter = new RequestRouter();
+
+    @BeforeEach
+    void configureSerializers(){
+        val jsonSerializer = new JsonSerializer();
+        Config.INSTANCE.registerSerializer( jsonSerializer );
+    }
 
     @DisplayName("Can match a single route")
     @Test void test0()
     {
         urlRouter.memorizeEndpoint(Methods.GET.and( "/users" ).withNoContent( userResource::retrieveUsers  ) );
         val endpoint = urlRouter.resolveRoute( request(Methods.GET, "/users" ) );
-        endpoint.invoke( new Request() );
+        endpoint.invoke( new APIGatewayProxyRequestEvent() );
         verify(userResource).retrieveUsers( any() );
     }
 
@@ -30,7 +35,7 @@ class RequestRouterTest {
     {
         urlRouter.memorizeEndpoint(Methods.GET.and( "/users" ).withNoContent( userResource::retrieveUsers  ) );
         val endpoint = urlRouter.resolveRoute( request(Methods.GET, "/users/" ) );
-        endpoint.invoke( new Request() );
+        endpoint.invoke( new APIGatewayProxyRequestEvent() );
         verify(userResource).retrieveUsers( any() );
     }
 
@@ -40,10 +45,10 @@ class RequestRouterTest {
         urlRouter.memorizeEndpoint( Methods.GET.and( "/users/sub/:id" ).withNoContent( userResource::retrieveSingleUser  ) );
         val request = request(Methods.GET, "/users/sub/123" );
         val endpoint = urlRouter.resolveRoute( request );
-        assertTrue( request.pathParameters.containsKey( "id" ) );
-        assertEquals( "123", request.pathParameters.get("id") );
+        assertTrue( request.getPathParameters().containsKey( "id" ) );
+        assertEquals( "123", request.getPathParameters().get("id") );
 
-        endpoint.invoke( new Request() );
+        endpoint.invoke( new APIGatewayProxyRequestEvent() );
         verify(userResource).retrieveSingleUser( any() );
     }
 
@@ -53,7 +58,7 @@ class RequestRouterTest {
         urlRouter.memorizeEndpoint( Methods.GET.and( "/users/:id" ).withNoContent( userResource::retrieveSingleUser  ) );
         urlRouter.memorizeEndpoint( Methods.GET.and( "/users" ).withNoContent( userResource::retrieveUsers  ) );
         val endpoint = urlRouter.resolveRoute( request(Methods.GET, "/users/1" ) );
-        endpoint.invoke( new Request() );
+        endpoint.invoke( new APIGatewayProxyRequestEvent() );
         verify(userResource).retrieveSingleUser( any() );
     }
 
@@ -68,7 +73,7 @@ class RequestRouterTest {
         val endpoint = urlRouter.resolveRoute( req );
         val resp = endpoint.invoke( req );
 
-        assertEquals( 204, resp.statusCode );
+        assertEquals( 204, (int)resp.getStatusCode() );
         verify( userResource ).saveUser( any() );
     }
 
@@ -83,7 +88,7 @@ class RequestRouterTest {
         val endpoint = urlRouter.resolveRoute( req );
         val resp = endpoint.invoke( req );
 
-        assertEquals( 201, resp.statusCode );
+        assertEquals( 201, (int)resp.getStatusCode() );
         verify( userResource ).createReportOfUsers();
     }
 
@@ -92,12 +97,13 @@ class RequestRouterTest {
     {
         urlRouter.memorizeEndpoint(Methods.PUT.and( "/users" ).with( userResource::updateUser ) );
 
-        val req = request(Methods.PUT, "/users" ).setBody( "{\"name\":\"Helden Liniel\"}" )
-                .setHeaders( Collections.singletonMap("Content-Type", "application/json") );
+        val req = request(Methods.PUT, "/users" )
+		        .withBody( "{\"name\":\"Helden Liniel\"}" )
+		        .withHeaders( singletonMap("Content-Type", "application/json") );
 
         val resp = urlRouter.doRouting( req, null );
-        assertEquals( 200, resp.statusCode );
-        assertEquals( "Helden Liniel", resp.body );
+        assertEquals( 200, (int)resp.getStatusCode() );
+        assertEquals( "Helden Liniel", resp.getBody() );
     }
 
     @DisplayName("Endpoints can send objects and gets its content serialized at the response body")
@@ -105,7 +111,7 @@ class RequestRouterTest {
         urlRouter.memorizeEndpoint(Methods.GET.and( "/users" ).with( userResource::retrieveUsers ) );
         val req = request(Methods.GET, "/users" );
         val resp = urlRouter.doRouting( req, null );
-        assertEquals( "[{\"name\":\"User\"}]", resp.body );
+        assertEquals( "[{\"name\":\"User\"}]", resp.getBody() );
     }
 
     @DisplayName("Can match the root URL in cases where a 'slash' plus 'place holder' exists")
@@ -114,13 +120,14 @@ class RequestRouterTest {
         urlRouter.memorizeEndpoint(Methods.GET.and( "/:any" ).with( userResource::createReportOfUsers ) );
         val req = request(Methods.GET, "/" );
         val resp = urlRouter.doRouting( req, null );
-        assertEquals( "[{\"name\":\"User\"}]", resp.body );
+        assertEquals( "[{\"name\":\"User\"}]", resp.getBody() );
     }
 
-    Request request( Methods method, String url ) {
-        val req = new Request();
-        req.path = url;
-        req.httpMethod = method.toString();
+    APIGatewayProxyRequestEvent request(Methods method, String url ) {
+        val req = new APIGatewayProxyRequestEvent();
+        req.setPath( url );
+        req.setHeaders( Collections.emptyMap() );
+        req.setHttpMethod( method.toString() );
         return req;
     }
 }

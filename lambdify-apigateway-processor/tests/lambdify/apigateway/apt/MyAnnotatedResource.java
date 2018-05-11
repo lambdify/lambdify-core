@@ -3,7 +3,8 @@ package lambdify.apigateway.apt;
 import static lambdify.apigateway.Methods.*;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import lambdify.apigateway.*;
+import com.amazonaws.services.lambda.runtime.events.*;
+import lambdify.apigateway.Responses;
 import lambdify.apigateway.ann.*;
 
 /**
@@ -18,7 +19,7 @@ public class MyAnnotatedResource {
 	}
 
 	@Route( url = "/api/users/:id", method = GET )
-	User getUser(@PathParam("id") Long id, Request request ){
+	User getUser(@PathParam("id") Long id, APIGatewayProxyRequestEvent request ){
 		return new User( id );
 	}
 
@@ -35,8 +36,8 @@ public class MyAnnotatedResource {
 	}
 
 	@Route( url = "/api/users", method = PUT)
-	Response updateUser( @QueryParam( "id" ) Long id, User user ){
-		return Response.accepted();
+	APIGatewayProxyResponseEvent updateUser(@QueryParam( "id" ) Long id, User user ){
+		return Responses.accepted();
 	}
 }
 

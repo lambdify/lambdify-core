@@ -1,5 +1,6 @@
 package lambdify.apigateway
 
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
 import lambdify.apigateway.Methods.*
 import lambdify.apigateway.kotlin.App
 import lambdify.apigateway.kotlin.and
@@ -53,9 +54,10 @@ class AppRouterTest {
     }
 
     fun request( url:String, method:Methods )
-        = Request().apply {
+        = APIGatewayProxyRequestEvent().apply {
             this.path = url
             this.httpMethod = method.toString()
+            this.headers = mapOf()
         }
 }
 

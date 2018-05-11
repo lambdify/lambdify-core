@@ -1,5 +1,7 @@
 package lambdify.apigateway
 
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import lambdify.apigateway.Methods.*
 import lambdify.apigateway.kotlin.App
 import lambdify.apigateway.kotlin.and
@@ -27,31 +29,31 @@ open class UserResource {
 
     lateinit var lastExecutedMethod:String
 
-    fun customNotFoundHandler( request: Request ): Response {
+    fun customNotFoundHandler( request: APIGatewayProxyRequestEvent): APIGatewayProxyResponseEvent {
         lastExecutedMethod = "customNotFoundHandler"
-        return Response.notFound().apply {
+        return Responses.notFound().apply {
             this.headers = mutableMapOf(
                 "X-Custom" to "Not Found"
             )
         }
     }
 
-    fun retrieveUsers( request: Request): Response {
+    fun retrieveUsers( request: APIGatewayProxyRequestEvent): APIGatewayProxyResponseEvent {
         lastExecutedMethod = "retrieveUsers"
-        return Response.noContent()
+        return Responses.noContent()
     }
 
-    fun retrieveSingleUser( request: Request? ): Response {
+    fun retrieveSingleUser( request: APIGatewayProxyRequestEvent? ): APIGatewayProxyResponseEvent {
         lastExecutedMethod = "retrieveSingleUser"
-        return Response.ok("{'name':'Lambda User'}", "application/json")
+        return Responses.ok("{'name':'Lambda User'}", "application/json")
     }
 
-    fun doReportOfUsers(): Response {
+    fun doReportOfUsers(): APIGatewayProxyResponseEvent {
         lastExecutedMethod = "doReportOfUsers"
-        return Response.created()
+        return Responses.created()
     }
 
-    fun saveUser( request: Request? ) {
+    fun saveUser( request: APIGatewayProxyRequestEvent? ) {
         lastExecutedMethod = "saveUser"
     }
 }

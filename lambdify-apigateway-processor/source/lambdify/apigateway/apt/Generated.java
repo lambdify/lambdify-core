@@ -3,7 +3,7 @@ package lambdify.apigateway.apt;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import lambdify.apigateway.*;
+import com.amazonaws.services.lambda.runtime.events.*;
 import lambdify.apigateway.ann.*;
 import lombok.*;
 
@@ -69,7 +69,7 @@ public interface Generated {
 		}
 
 		public boolean isReturnsResponse(){
-			return Response.class.getCanonicalName().equals( type );
+			return APIGatewayProxyResponseEvent.class.getCanonicalName().equals( type );
 		}
 
 		public MustacheIterable getParameterIterable(){
@@ -111,7 +111,7 @@ public interface Generated {
 		}
 
 		public boolean isAPIGatewayRequest(){
-			return Request.class.getCanonicalName().equals( type );
+			return APIGatewayProxyRequestEvent.class.getCanonicalName().equals( type );
 		}
 
 		protected Annotation getAnnotation( Class<?> clazz ) {

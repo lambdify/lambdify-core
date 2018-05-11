@@ -1,6 +1,7 @@
 package lambdify.apigateway;
 
 import com.amazonaws.services.lambda.runtime.*;
+import com.amazonaws.services.lambda.runtime.events.*;
 import lombok.Value;
 import lombok.experimental.Accessors;
 
@@ -38,14 +39,14 @@ public interface Router {
 	/**
 	 * Represents a Lambda Function.
 	 */
-	interface LambdaFunction extends RequestHandler<Request, Response> {
+	interface LambdaFunction extends RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
 		@Override
-		default Response handleRequest(Request input, Context context) {
+		default APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
 			return invoke(input);
 		}
 
-		Response invoke(Request input);
+		APIGatewayProxyResponseEvent invoke(APIGatewayProxyRequestEvent input);
 	}
 
 	/**
@@ -54,12 +55,12 @@ public interface Router {
 	interface LambdaConsumer extends LambdaFunction {
 
 	    @Override
-	    default Response invoke(Request input) {
+	    default APIGatewayProxyResponseEvent invoke(APIGatewayProxyRequestEvent input) {
 	        consume(input);
-	        return Response.noContent();
+	        return Responses.noContent();
 	    }
 
-	    void consume(Request input);
+	    void consume(APIGatewayProxyRequestEvent input);
 	}
 
 	/**
@@ -68,11 +69,11 @@ public interface Router {
 	interface LambdaSupplier extends LambdaFunction {
 
 	    @Override
-	    default Response invoke(Request input) {
+	    default APIGatewayProxyResponseEvent invoke(APIGatewayProxyRequestEvent input) {
 	        return supply();
 	    }
 
-	    Response supply();
+		APIGatewayProxyResponseEvent supply();
 	}
 
 	/**

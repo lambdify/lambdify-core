@@ -2,11 +2,15 @@ package lambdify.apigateway;
 
 import static lambdify.apigateway.Methods.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import lombok.val;
+import java.util.Collections;
+import com.amazonaws.services.lambda.runtime.*;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import lombok.*;
 import org.junit.jupiter.api.*;
 
 class AppTest {
 
+	private Context context = new DefaultAwsContext();
     private App app;
 
     @BeforeEach void setupApp()
@@ -28,9 +32,9 @@ class AppTest {
     @DisplayName( "Can handle URLs that not matches any endpoint" )
     @Test void test1(){
         val req = createRequest( "/profiles/1", Methods.GET );
-        val response = app.handleRequest( req, null);
-        assertEquals(404, response.statusCode);
-        assertEquals( "Not Found", response.headers.get("X-Custom") );
+        val response = app.handleRequest( req, context);
+        assertEquals(404, (int)response.getStatusCode() );
+        assertEquals( "Not Found", response.getHeaders().get("X-Custom") );
     }
 
     @DisplayName( "Stress Test" )
@@ -38,9 +42,9 @@ class AppTest {
     {
         Runnable method = () -> {
             val req = createRequest( "/profiles/1", Methods.GET );
-            val response = app.handleRequest( req, null);
-            assertEquals(404, response.statusCode);
-            assertEquals( "Not Found", response.headers.get("X-Custom") );
+            val response = app.handleRequest( req, context);
+            assertEquals(404, (int)response.getStatusCode() );
+            assertEquals( "Not Found", response.getHeaders().get("X-Custom") );
         };
 
         val manyTimes = 10000000;
@@ -52,13 +56,29 @@ class AppTest {
     @DisplayName( "Can match an endpoint" )
     @Test void test3(){
         val req = createRequest( "/users/1", Methods.GET );
-        val response = app.handleRequest(req, null);
-        assertEquals(200, response.statusCode);
-        assertEquals( "{'name':'Lambda User'}", response.body );
+        val response = app.handleRequest(req, context);
+        assertEquals(200, (int)response.getStatusCode() );
+        assertEquals( "{'name':'Lambda User'}", response.getBody() );
     }
 
-    Request createRequest( String path, Methods method ) {
-        return new Request()
-            .setPath( path ).setHttpMethod( method.toString() );
+    APIGatewayProxyRequestEvent createRequest(String path, Methods method ) {
+        return new APIGatewayProxyRequestEvent()
+            .withPath( path )
+	        .withHttpMethod( method.toString() )
+	        .withHeaders( Collections.emptyMap() );
+    }
+
+    @Data class DefaultAwsContext implements Context {
+    	String
+		    awsRequestId,
+		    logGroupName, logStreamName,
+		    functionName, functionVersion, invokedFunctionArn;
+
+	    int remainingTimeInMillis, memoryLimitInMB;
+
+	    CognitoIdentity identity;
+	    ClientContext clientContext;
+
+	    LambdaLogger logger = System.err::println;
     }
 }

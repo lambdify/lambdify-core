@@ -2,6 +2,7 @@ package lambdify.apigateway;
 
 import java.io.*;
 import com.amazonaws.services.lambda.runtime.*;
+import com.amazonaws.services.lambda.runtime.events.*;
 import lombok.*;
 import lombok.experimental.Accessors;
 
@@ -11,7 +12,7 @@ import lombok.experimental.Accessors;
 @ToString
 @NoArgsConstructor
 @Accessors(fluent = true)
-public class App implements RequestHandler<Request, Response> {
+public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     /**
      * The internal router.
@@ -24,7 +25,7 @@ public class App implements RequestHandler<Request, Response> {
      */
     private RequestRouter getRouter(){
         if ( router == null )
-            router = new RequestRouter(Config.INSTANCE.getSerializers());
+            router = new RequestRouter();
         return router;
     }
 
@@ -68,7 +69,7 @@ public class App implements RequestHandler<Request, Response> {
      * @see RequestHandler#handleRequest(Object, Context)
      */
     @Override
-    public Response handleRequest(Request request, Context context) {
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
         try {
             return getRouter().doRouting( request, context );
         } catch ( Throwable cause ) {
@@ -79,7 +80,7 @@ public class App implements RequestHandler<Request, Response> {
             context.getLogger().log( errorMsg );
             context.getLogger().log( "Global configuration: " + Config.INSTANCE );
 	        context.getLogger().log( "App configuration: " + this );
-            return Response.internalServerError( errorMsg );
+            return Responses.internalServerError( errorMsg );
         }
     }
 }

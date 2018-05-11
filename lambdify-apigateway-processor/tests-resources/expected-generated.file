@@ -34,33 +34,33 @@ public class MyAnnotatedResourceRouter implements lambdify.apigateway.Router {
 	    this.instance = new lambdify.apigateway.apt.MyAnnotatedResource( semaphore );
 	}
 
-	lambdify.apigateway.Response getUser1(
-			lambdify.apigateway.Request request ){
-		return lambdify.apigateway.Response.ok(this.instance.getUser(
-							request.getPathParam( "id", java.lang.Long.class )
+	com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent getUser1(
+			com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent request ){
+		return lambdify.apigateway.Responses.ok(this.instance.getUser(
+							lambdify.apigateway.RequestParameterReader.getPathParam( request, "id", java.lang.Long.class )
 			,				request
 		), "");
 	}
 
 	void saveUser2(
-			lambdify.apigateway.Request request ){
+			com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent request ){
 		this.instance.saveUser(
-							request.getBodyAs( lambdify.apigateway.apt.User.class )
+							lambdify.apigateway.RequestParameterReader.getBodyAs( request, lambdify.apigateway.apt.User.class )
 		);
 	}
 
-	lambdify.apigateway.Response saveUser3(
-			lambdify.apigateway.Request request ){
-		return lambdify.apigateway.Response.ok(this.instance.saveUser(
-							request.getBodyAs( java.util.Map.class )
+	com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent saveUser3(
+			com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent request ){
+		return lambdify.apigateway.Responses.ok(this.instance.saveUser(
+							lambdify.apigateway.RequestParameterReader.getBodyAs( request, java.util.Map.class )
 		), "application/json");
 	}
 
-	lambdify.apigateway.Response updateUser4(
-			lambdify.apigateway.Request request ){
+	com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent updateUser4(
+			com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent request ){
 		return this.instance.updateUser(
-							request.getQueryParam( "id", java.lang.Long.class )
-			,				request.getBodyAs( lambdify.apigateway.apt.User.class )
+							lambdify.apigateway.RequestParameterReader.getQueryParam( request, "id", java.lang.Long.class )
+			,				lambdify.apigateway.RequestParameterReader.getBodyAs( request, lambdify.apigateway.apt.User.class )
 		);
 	}
 

@@ -38,22 +38,22 @@ public class {{generatedSimpleName}} implements lambdify.apigateway.Router {
 	}
 {{/constructor}}
 {{^constructor}}
-	{{^voidMethod}}lambdify.apigateway.Response{{/voidMethod}}{{#voidMethod}}void{{/voidMethod}} {{name}}{{counter}}(
-			lambdify.apigateway.Request request ){
-		{{^voidMethod}}return {{^returnsResponse}}lambdify.apigateway.Response.ok({{/returnsResponse}}{{/voidMethod}}this.instance.{{name}}(
+	{{^voidMethod}}com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent{{/voidMethod}}{{#voidMethod}}void{{/voidMethod}} {{name}}{{counter}}(
+			com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent request ){
+		{{^voidMethod}}return {{^returnsResponse}}lambdify.apigateway.Responses.ok({{/returnsResponse}}{{/voidMethod}}this.instance.{{name}}(
 		{{#parameterIterable}}
 			{{^first}},{{/first}}{{#data}}
 			{{#pathParameter}}
-				request.getPathParam( {{{value}}}, {{parent.type}}.class )
+				lambdify.apigateway.RequestParameterReader.getPathParam( request, {{{value}}}, {{parent.type}}.class )
 			{{/pathParameter}}
 			{{#headerParameter}}
-				request.getHeaderParam( {{{value}}}, {{parent.type}}.class )
+				lambdify.apigateway.RequestParameterReader.getHeaderParam( request, {{{value}}}, {{parent.type}}.class )
 			{{/headerParameter}}
 			{{#queryParameter}}
-				request.getQueryParam( {{{value}}}, {{parent.type}}.class )
+				lambdify.apigateway.RequestParameterReader.getQueryParam( request, {{{value}}}, {{parent.type}}.class )
 			{{/queryParameter}}
 			{{#bodyParameter}}
-				request.getBodyAs( {{type}}.class )
+				lambdify.apigateway.RequestParameterReader.getBodyAs( request, {{type}}.class )
 			{{/bodyParameter}}
 			{{#APIGatewayRequest}}
 				{{name}}

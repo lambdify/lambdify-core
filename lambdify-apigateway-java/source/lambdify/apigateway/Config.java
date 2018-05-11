@@ -2,6 +2,7 @@ package lambdify.apigateway;
 
 import static lombok.AccessLevel.PRIVATE;
 import java.util.*;
+import com.amazonaws.services.lambda.runtime.events.*;
 import lambdify.apigateway.Router.LambdaFunction;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -36,21 +37,32 @@ public class Config {
 	/**
 	 * The request serializers. By default it loads all {@code Serializer}s found at the class path.
 	 */
-	@NonNull Iterable<Serializer> serializers;
+	@NonNull Map<String, Serializer> serializers;
 
 	/**
 	 * Lazy loader of {@code serializers}.
 	 * @return
 	 */
-	public Iterable<Serializer> getSerializers() {
+	public Map<String, Serializer> getSerializers() {
 		if ( serializers == null ) {
-			val loaded = new ArrayList<Serializer>();
-			val found = ServiceLoader.load( Serializer.class );
-			for ( val serialize : found )
-				loaded.add( serialize );
-			serializers = loaded;
+			serializers = new HashMap<>();
+			loadDefaultSerializers();
 		}
 		return serializers;
+	}
+
+	private void loadDefaultSerializers(){
+		val found = ServiceLoader.load( Serializer.class );
+		for ( val serializer : found ) {
+			registerSerializer( serializer );
+		}
+	}
+
+	public Config registerSerializer( Serializer serializer ) {
+		val previous = getSerializers().put( serializer.contentType(), serializer );
+		if ( previous != null )
+			System.err.println( "Overriding previously registered serializer for " + serializer.contentType() );
+		return this;
 	}
 
 	/**
@@ -60,8 +72,8 @@ public class Config {
 	class DefaultNotFoundHandler implements LambdaFunction {
 
 		@Override
-		public Response invoke(Request input) {
-			return Response.notFound();
+		public APIGatewayProxyResponseEvent invoke(APIGatewayProxyRequestEvent input) {
+			return Responses.notFound();
 		}
 	}
 }

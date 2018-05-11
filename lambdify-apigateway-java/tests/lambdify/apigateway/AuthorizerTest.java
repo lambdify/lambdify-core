@@ -35,7 +35,7 @@ class AuthorizerTest {
         assertEquals( "api/users", arn.getResource());
     }
 
-    @DisplayName("grant access from an Authorization Token Request")
+    @DisplayName("grant access from an Authorization Token APIGatewayProxyRequestBlobEvent")
     @Test void test2() throws IOException {
         val token = JSON.std.beanFrom(TokenAuthorizerContext.class, request);
         val policy = token.grantPermission( "1" );
@@ -44,7 +44,7 @@ class AuthorizerTest {
         out.println( "JSON: " + JSON.std.asString(policy) );
     }
 
-    @DisplayName("grant access from an Authorization Token Request")
+    @DisplayName("grant access from an Authorization Token APIGatewayProxyRequestBlobEvent")
     @Test void test3() throws IOException {
         val token = JSON.std.beanFrom(TokenAuthorizerContext.class, request);
         val policy = token.denyPermission( "1" );
