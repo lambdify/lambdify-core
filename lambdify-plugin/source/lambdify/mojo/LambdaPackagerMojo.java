@@ -12,7 +12,7 @@ import org.apache.maven.project.MavenProject;
 /**
  *
  */
-@Mojo( name = "lambda-package", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME )
+@Mojo( name = "package", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME )
 public class LambdaPackagerMojo extends AWSMojo {
 
 	@Parameter( defaultValue = "${project}", required = true)
@@ -21,19 +21,13 @@ public class LambdaPackagerMojo extends AWSMojo {
 	@Parameter( defaultValue = "true", required = true )
 	@Getter Boolean enabled;
 
-	@Parameter( defaultValue = "us-east-1", required = true )
-	@Getter String regionName;
-
-	@Parameter( defaultValue = "${project.build.directory}", required = true )
-	File targetDirectory;
-
-	@Parameter( defaultValue = "${project.build.finalName}.jar", required = true )
+	@Parameter( defaultValue = "${project.build.directory}/${project.build.finalName}.jar", required = true )
 	String jarFileName;
 
-	@Parameter( defaultValue = "${project.build.finalName}.zip", required = true )
+	@Parameter( defaultValue = "${project.build.directory}/${project.build.finalName}.zip", required = true )
 	String zipFileName;
 
-	@Parameter( required = true, defaultValue = "UNDEFINED-HANDLER" )
+	@Parameter( required = true )
 	String handler;
 
 	@Override
@@ -46,8 +40,7 @@ public class LambdaPackagerMojo extends AWSMojo {
 	private void checkIfClassExists(String handlerClass) throws MojoFailureException {
 		try {
 			getLog().info( "Checking handler class '" + handlerClass + "'..." );
-			val jarFile = targetDirectory.getAbsolutePath() + File.separatorChar + jarFileName;
-			val cl = new URLClassLoader( getClassPathFor( jarFile ), getClass().getClassLoader());
+			val cl = new URLClassLoader( getClassPathFor( jarFileName ), getClass().getClassLoader());
 			cl.loadClass( handlerClass );
 		} catch (MalformedURLException e) {
 			throw new MojoFailureException(e.getMessage(),e);
@@ -68,12 +61,10 @@ public class LambdaPackagerMojo extends AWSMojo {
 	}
 
 	private File generatePackageFile() throws MojoExecutionException {
-		val jarFile = targetDirectory.getAbsolutePath() + File.separatorChar + jarFileName;
-		val zipFile = targetDirectory.getAbsolutePath() + File.separatorChar + zipFileName;
-		try ( val zipPackage = new ZipPackager( zipFile ) ) {
+		try ( val zipPackage = new ZipPackager( zipFileName ) ) {
 			zipPackage.copyDependenciesToZip( project );
-			zipPackage.copyFilesFromJarToZip( jarFile );
+			zipPackage.copyFilesFromJarToZip( jarFileName );
 		}
-		return new File( zipFile );
+		return new File( zipFileName );
 	}
 }

@@ -4,12 +4,13 @@ import java.io.*;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 import lombok.*;
-import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
 
 /**
  *
  */
+@Mojo( name = "s3-deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME )
 public class S3UploaderMojo extends AWSMojo {
 
 	@Parameter( defaultValue = "${project}", required = true)
@@ -22,9 +23,9 @@ public class S3UploaderMojo extends AWSMojo {
 	@Getter String regionName;
 
 	@Parameter( defaultValue = "${project.build.directory}/${project.build.finalName}.zip", required = true )
-	String fileName;
+	String zipFileName;
 
-	@Parameter( defaultValue = "${project.groupId}-${project.artifactId}-${project.version}", required = true )
+	@Parameter( defaultValue = "${project.groupId}-${project.artifactId}-${project.version}.zip", required = true )
 	String s3Key;
 
 	@Parameter( required = true, defaultValue = "UNDEFINED-S3-BUCKET" )
@@ -32,9 +33,9 @@ public class S3UploaderMojo extends AWSMojo {
 
 	@Override
 	protected void run() throws Exception {
-		val packageFile = new File( fileName );
+		val packageFile = new File( zipFileName );
 		if ( !packageFile.exists() )
-			throw new FileNotFoundException( fileName );
+			throw new FileNotFoundException( zipFileName );
 		uploadPackage( packageFile );
 	}
 
