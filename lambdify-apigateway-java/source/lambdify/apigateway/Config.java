@@ -43,7 +43,7 @@ public class Config {
 	 * Lazy loader of {@code serializers}.
 	 * @return
 	 */
-	public Map<String, Serializer> getSerializers() {
+	public Map<String, Serializer> serializers() {
 		if ( serializers == null ) {
 			serializers = new HashMap<>();
 			loadDefaultSerializers();
@@ -59,7 +59,7 @@ public class Config {
 	}
 
 	public Config registerSerializer( Serializer serializer ) {
-		val previous = getSerializers().put( serializer.contentType(), serializer );
+		val previous = serializers().put( serializer.contentType(), serializer );
 		if ( previous != null )
 			System.err.println( "Overriding previously registered serializer for " + serializer.contentType() );
 		return this;

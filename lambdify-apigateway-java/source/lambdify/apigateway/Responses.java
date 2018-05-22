@@ -52,9 +52,15 @@ public interface Responses {
 			contentType = Config.INSTANCE.defaultContentType();
 			System.out.println( "No content type defined. Using default: " + contentType );
 		}
-		val serializer = Config.INSTANCE.serializers().get( contentType );
+
+		val serializers = Config.INSTANCE.serializers();
+		if ( serializers == null )
+			throw new RuntimeException( "Could not generate a response: no serializer defined" );
+
+		val serializer = serializers.get( contentType );
 		if ( serializer == null )
 			throw new RuntimeException( "Could not generate a response: no serializer found for " + contentType );
+
 		return serializer;
 	}
 

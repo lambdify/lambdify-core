@@ -24,8 +24,10 @@ public class RequestRouter {
 
 	private void normalizeHeaders(APIGatewayProxyRequestEvent req) {
 		val newHeaders = new HashMap<String, String>();
-		for ( val entry : req.getHeaders().entrySet() )
-			newHeaders.put( entry.getKey().toLowerCase(), entry.getValue() );
+		val headers = req.getHeaders();
+		if ( headers != null )
+			for ( val entry : headers.entrySet() )
+				newHeaders.put( entry.getKey().toLowerCase(), entry.getValue() );
 		req.setHeaders( newHeaders );
 	}
 
