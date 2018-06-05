@@ -5,7 +5,7 @@ parent: { groupId: io.skullabs.boilerplates, artifactId: kotlin-1.2, version: 1.
 modelVersion: 4.0.0
 groupId: org.lambdify
 artifactId: lambdify-project-kotlin
-version: 0.5.0.Final
+version: 0.6.0.Final
 packaging: pom
 
 properties:
@@ -21,7 +21,7 @@ properties:
   # versions of libraries used on this project
   version.aws-sdk: 1.11.125
   version.aws-lambda: 1.1.0
-  version.aws-events: 2.0.1
+  version.aws-events: 0.1.0
   version.aws-log4j2: 1.0.0
   version.log4j2: 2.8.2
   version.kotlin: 1.2.31
@@ -29,11 +29,11 @@ properties:
 dependencyManagement:
   dependencies:
     # Lambdify Dependencies
-    - { groupId: org.lambdify,     artifactId: lambdify-apigateway-kotlin,  version: "0.5.0.Final" }
-    - { groupId: org.lambdify,     artifactId: lambdify-apigateway-processor,  version: "0.5.0.Final", scope: provided }
+    - { groupId: org.lambdify,     artifactId: lambdify-apigateway-kotlin,  version: "0.6.0.Final" }
+    - { groupId: org.lambdify,     artifactId: lambdify-apigateway-processor,  version: "0.6.0.Final", scope: provided }
     # AWS Lambda Dependencies
     - { groupId: com.amazonaws,    artifactId: aws-lambda-java-core,      version: "${version.aws-lambda}" }
-    - { groupId: org.lambdify,     artifactId: aws-lambda-java-events,    version: "${version.aws-events}" }
+    - { groupId: org.lambdify,     artifactId: lambdify-aws-events-apigateway,  version: "${version.aws-events}" }
     - { groupId: com.amazonaws,    artifactId: aws-lambda-java-log4j2,    version: "${version.aws-log4j2}" }
     # Log4j2 Dependencies
     - { groupId: org.apache.logging.log4j,  artifactId: log4j-core,       version: "${version.log4j2}" }
@@ -44,7 +44,7 @@ build:
     # Deploys your app as a AWS Lambda Function
     - groupId: org.lambdify
       artifactId: lambdify-plugin
-      version: "0.5.0.Final"
+      version: "0.6.0.Final"
       executions:
         - { id: "package", goals: ["package"], phase: "verify" }
         - { id: "s3deploy", goals: ["s3-deploy"], phase: "deploy" }
