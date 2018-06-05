@@ -1,0 +1,5 @@
+{
+  "map": { "key": "value" },
+  "bool": true,
+  "number": 12.05
+}

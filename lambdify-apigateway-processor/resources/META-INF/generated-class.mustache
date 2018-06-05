@@ -38,8 +38,8 @@ public class {{generatedSimpleName}} implements lambdify.apigateway.Router {
 	}
 {{/constructor}}
 {{^constructor}}
-	{{^voidMethod}}com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent{{/voidMethod}}{{#voidMethod}}void{{/voidMethod}} {{name}}{{counter}}(
-			com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent request ){
+	{{^voidMethod}}lambdify.aws.events.apigateway.ProxyResponseEvent{{/voidMethod}}{{#voidMethod}}void{{/voidMethod}} {{name}}{{counter}}(
+			lambdify.aws.events.apigateway.ProxyRequestEvent request ){
 		{{^voidMethod}}return {{^returnsResponse}}lambdify.apigateway.Responses.ok({{/returnsResponse}}{{/voidMethod}}this.instance.{{name}}(
 		{{#parameterIterable}}
 			{{^first}},{{/first}}{{#data}}

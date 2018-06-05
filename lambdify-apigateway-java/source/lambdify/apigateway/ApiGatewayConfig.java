@@ -2,8 +2,8 @@ package lambdify.apigateway;
 
 import static lombok.AccessLevel.PRIVATE;
 import java.util.*;
-import com.amazonaws.services.lambda.runtime.events.*;
 import lambdify.apigateway.Router.LambdaFunction;
+import lambdify.aws.events.apigateway.*;
 import lombok.*;
 import lombok.experimental.Accessors;
 
@@ -13,9 +13,9 @@ import lombok.experimental.Accessors;
 @ToString
 @Getter @Setter @Accessors(fluent = true)
 @NoArgsConstructor(access = PRIVATE)
-public class Config {
+public class ApiGatewayConfig {
 
-	public static final Config INSTANCE = new Config();
+	public static final ApiGatewayConfig INSTANCE = new ApiGatewayConfig();
 
 	/**
 	 * The default value that would be used when a response is produced
@@ -58,7 +58,7 @@ public class Config {
 		}
 	}
 
-	public Config registerSerializer( Serializer serializer ) {
+	public ApiGatewayConfig registerSerializer(Serializer serializer ) {
 		val previous = serializers().put( serializer.contentType(), serializer );
 		if ( previous != null )
 			System.err.println( "Overriding previously registered serializer for " + serializer.contentType() );
@@ -72,7 +72,7 @@ public class Config {
 	class DefaultNotFoundHandler implements LambdaFunction {
 
 		@Override
-		public APIGatewayProxyResponseEvent invoke(APIGatewayProxyRequestEvent input) {
+		public ProxyResponseEvent invoke(ProxyRequestEvent input) {
 			return Responses.notFound();
 		}
 	}

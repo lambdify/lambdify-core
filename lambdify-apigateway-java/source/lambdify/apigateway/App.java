@@ -2,7 +2,8 @@ package lambdify.apigateway;
 
 import java.io.*;
 import com.amazonaws.services.lambda.runtime.*;
-import com.amazonaws.services.lambda.runtime.events.*;
+import lambdify.aws.events.apigateway.*;
+import lambdify.core.LambdaStreamFunction;
 import lombok.*;
 import lombok.experimental.Accessors;
 
@@ -12,7 +13,7 @@ import lombok.experimental.Accessors;
 @ToString
 @NoArgsConstructor
 @Accessors(fluent = true)
-public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class App extends LambdaStreamFunction<ProxyRequestEvent, ProxyResponseEvent> {
 
     /**
      * The internal router.
@@ -21,6 +22,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
 
     /**
      * Lazy loader of the internal {@link RequestRouter}.
+     *
      * @return
      */
     private RequestRouter getRouter(){
@@ -61,7 +63,8 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
     }
 
     /**
-     * Handles a Lambda Function request
+     * Handles a Lambda Function request.
+     *
      * @param request The Lambda Function input
      * @param context The Lambda execution environment context object.
      * @return The Lambda Function output
@@ -69,7 +72,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
      * @see RequestHandler#handleRequest(Object, Context)
      */
     @Override
-    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
+    public ProxyResponseEvent handleRequest(ProxyRequestEvent request, Context context) {
         try {
             return getRouter().doRouting( request, context );
         } catch ( Throwable cause ) {
@@ -78,7 +81,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
             val errorMsg = error.toString();
             context.getLogger().log( "Failed to handle request: " + cause.getMessage() );
             context.getLogger().log( errorMsg );
-            context.getLogger().log( "Global configuration: " + Config.INSTANCE );
+            context.getLogger().log( "Global configuration: " + ApiGatewayConfig.INSTANCE );
 	        context.getLogger().log( "App configuration: " + this );
             return Responses.internalServerError( errorMsg );
         }

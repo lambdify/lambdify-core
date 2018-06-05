@@ -4,7 +4,7 @@ import static lambdify.apigateway.Methods.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Collections;
 import com.amazonaws.services.lambda.runtime.*;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import lambdify.aws.events.apigateway.ProxyRequestEvent;
 import lombok.*;
 import org.junit.jupiter.api.*;
 
@@ -17,7 +17,7 @@ class AppTest {
     {
         val userResource = new UserRepository();
 
-        Config.INSTANCE.defaultNotFoundHandler( userResource::customNotFoundHandler );
+        ApiGatewayConfig.INSTANCE.defaultNotFoundHandler( userResource::customNotFoundHandler );
 
         app = new App(){{
             routes(
@@ -61,8 +61,8 @@ class AppTest {
         assertEquals( "{'name':'Lambda User'}", response.getBody() );
     }
 
-    APIGatewayProxyRequestEvent createRequest(String path, Methods method ) {
-        return new APIGatewayProxyRequestEvent()
+    ProxyRequestEvent createRequest(String path, Methods method ) {
+        return new ProxyRequestEvent()
             .withPath( path )
 	        .withHttpMethod( method.toString() )
 	        .withHeaders( Collections.emptyMap() );

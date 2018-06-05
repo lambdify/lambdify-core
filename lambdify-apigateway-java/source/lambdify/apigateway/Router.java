@@ -1,7 +1,8 @@
 package lambdify.apigateway;
 
 import com.amazonaws.services.lambda.runtime.*;
-import com.amazonaws.services.lambda.runtime.events.*;
+import lambdify.aws.events.apigateway.*;
+import lambdify.core.LambdaStreamFunction;
 import lombok.Value;
 import lombok.experimental.Accessors;
 
@@ -39,14 +40,14 @@ public interface Router {
 	/**
 	 * Represents a Lambda Function.
 	 */
-	interface LambdaFunction extends RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+	interface LambdaFunction extends RequestHandler<ProxyRequestEvent, ProxyResponseEvent> {
 
 		@Override
-		default APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
+		default ProxyResponseEvent handleRequest(ProxyRequestEvent input, Context context) {
 			return invoke(input);
 		}
 
-		APIGatewayProxyResponseEvent invoke(APIGatewayProxyRequestEvent input);
+		ProxyResponseEvent invoke(ProxyRequestEvent input);
 	}
 
 	/**
@@ -55,12 +56,12 @@ public interface Router {
 	interface LambdaConsumer extends LambdaFunction {
 
 	    @Override
-	    default APIGatewayProxyResponseEvent invoke(APIGatewayProxyRequestEvent input) {
+	    default ProxyResponseEvent invoke(ProxyRequestEvent input) {
 	        consume(input);
 	        return Responses.noContent();
 	    }
 
-	    void consume(APIGatewayProxyRequestEvent input);
+	    void consume(ProxyRequestEvent input);
 	}
 
 	/**
@@ -69,17 +70,17 @@ public interface Router {
 	interface LambdaSupplier extends LambdaFunction {
 
 	    @Override
-	    default APIGatewayProxyResponseEvent invoke(APIGatewayProxyRequestEvent input) {
+	    default ProxyResponseEvent invoke(ProxyRequestEvent input) {
 	        return supply();
 	    }
 
-		APIGatewayProxyResponseEvent supply();
+		ProxyResponseEvent supply();
 	}
 
 	/**
 	 * Represents an Authorizer Function.
 	 */
-	interface AuthorizerFunction extends RequestHandler<TokenAuthorizerContext, AuthPolicy> {
+	abstract class AuthorizerFunction extends LambdaStreamFunction<TokenAuthorizerContext, AuthPolicy> {
 
 	}
 

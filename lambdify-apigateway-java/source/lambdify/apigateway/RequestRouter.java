@@ -3,8 +3,8 @@ package lambdify.apigateway;
 import static lambdify.apigateway.URLMatcher.compile;
 import java.util.*;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.events.*;
 import lambdify.apigateway.Router.*;
+import lambdify.aws.events.apigateway.*;
 import lombok.*;
 import lombok.experimental.var;
 
@@ -16,13 +16,13 @@ public class RequestRouter {
 
 	final Map<String, List<Entry<URLMatcher, Router.LambdaFunction>>> matchers = new HashMap<>();
 
-	public APIGatewayProxyResponseEvent doRouting(APIGatewayProxyRequestEvent req, Context ctx) {
+	public ProxyResponseEvent doRouting(ProxyRequestEvent req, Context ctx) {
 		normalizeHeaders( req );
 		val route = resolveRoute( req );
 		return route.handleRequest( req, ctx );
 	}
 
-	private void normalizeHeaders(APIGatewayProxyRequestEvent req) {
+	private void normalizeHeaders(ProxyRequestEvent req) {
 		val newHeaders = new HashMap<String, String>();
 		val headers = req.getHeaders();
 		if ( headers != null )
@@ -31,10 +31,10 @@ public class RequestRouter {
 		req.setHeaders( newHeaders );
 	}
 
-	Router.LambdaFunction resolveRoute(APIGatewayProxyRequestEvent req) {
+	Router.LambdaFunction resolveRoute(ProxyRequestEvent req) {
 		val found = matchers.computeIfAbsent( req.getHttpMethod(), m -> new ArrayList<>() );
 		val urlTokens = URLMatcher.tokenize( req.getPath() );
-		var route = Config.INSTANCE.defaultNotFoundHandler();
+		var route = ApiGatewayConfig.INSTANCE.defaultNotFoundHandler();
 		for ( val entry : found ) {
 			val params = new HashMap<String, String>();
 			if ( entry.key().matches( urlTokens, params ) ) {

@@ -2,7 +2,7 @@ package lambdify.apigateway;
 
 import static java.util.Collections.singletonMap;
 import java.util.Map;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import lambdify.aws.events.apigateway.ProxyResponseEvent;
 import lombok.val;
 
 /**
@@ -10,50 +10,50 @@ import lombok.val;
  */
 public interface Responses {
 
-	static APIGatewayProxyResponseEvent notFound() {
-		return new APIGatewayProxyResponseEvent().withStatusCode( 404 );
+	static ProxyResponseEvent notFound() {
+		return new ProxyResponseEvent().withStatusCode( 404 );
 	}
 
-	static APIGatewayProxyResponseEvent noContent() {
-		return new APIGatewayProxyResponseEvent().withStatusCode( 204 );
+	static ProxyResponseEvent noContent() {
+		return new ProxyResponseEvent().withStatusCode( 204 );
 	}
 
-	static APIGatewayProxyResponseEvent created() {
-		return new APIGatewayProxyResponseEvent().withStatusCode( 201 );
+	static ProxyResponseEvent created() {
+		return new ProxyResponseEvent().withStatusCode( 201 );
 	}
 
-	static APIGatewayProxyResponseEvent accepted() {
-		return new APIGatewayProxyResponseEvent().withStatusCode( 202 );
+	static ProxyResponseEvent accepted() {
+		return new ProxyResponseEvent().withStatusCode( 202 );
 	}
 
-	static APIGatewayProxyResponseEvent ok(String body) {
-		return ok( body, Config.INSTANCE.defaultContentType() );
+	static ProxyResponseEvent ok(String body) {
+		return ok( body, ApiGatewayConfig.INSTANCE.defaultContentType() );
 	}
 
-	static APIGatewayProxyResponseEvent ok(String body, String contentType) {
+	static ProxyResponseEvent ok(String body, String contentType) {
 		val contentTypeHeaders = singletonMap( "Content-Type", contentType );
-		return new APIGatewayProxyResponseEvent().withStatusCode( 200 ).withBody( body ).withHeaders( contentTypeHeaders );
+		return new ProxyResponseEvent().withStatusCode( 200 ).withBody( body ).withHeaders( contentTypeHeaders );
 	}
 
-	static APIGatewayProxyResponseEvent ok(Object body) {
-		return ok( body, Config.INSTANCE.defaultContentType() );
+	static ProxyResponseEvent ok(Object body) {
+		return ok( body, ApiGatewayConfig.INSTANCE.defaultContentType() );
 	}
 
-	static APIGatewayProxyResponseEvent ok(Object body, String contentType) {
+	static ProxyResponseEvent ok(Object body, String contentType) {
 		val serializer = getResponseSerializer(contentType);
 		val serialized = serializer.toString( body );
 		val contentTypeHeaders = singletonMap( "Content-Type", contentType );
-		return new APIGatewayProxyResponseEvent().withStatusCode( 200 )
+		return new ProxyResponseEvent().withStatusCode( 200 )
 				.withBody( serialized.getContent() ).withHeaders( contentTypeHeaders );
 	}
 
 	static Serializer getResponseSerializer( String contentType ) {
 		if ( contentType == null || contentType.isEmpty() ) {
-			contentType = Config.INSTANCE.defaultContentType();
+			contentType = ApiGatewayConfig.INSTANCE.defaultContentType();
 			System.out.println( "No content type defined. Using default: " + contentType );
 		}
 
-		val serializers = Config.INSTANCE.serializers();
+		val serializers = ApiGatewayConfig.INSTANCE.serializers();
 		if ( serializers == null )
 			throw new RuntimeException( "Could not generate a response: no serializer defined" );
 
@@ -64,16 +64,16 @@ public interface Responses {
 		return serializer;
 	}
 
-	static APIGatewayProxyResponseEvent with(int statusCode, Map<String, String> headers, String body) {
-		return new APIGatewayProxyResponseEvent()
+	static ProxyResponseEvent with(int statusCode, Map<String, String> headers, String body) {
+		return new ProxyResponseEvent()
 				.withStatusCode( statusCode )
 				.withHeaders( headers )
 				.withBody( body );
 	}
 
-	static APIGatewayProxyResponseEvent internalServerError(String errorMessage ) {
+	static ProxyResponseEvent internalServerError(String errorMessage ) {
 		val contentTypeHeaders = singletonMap( "Content-Type", "text/plain" );
-		return new APIGatewayProxyResponseEvent().withStatusCode( 500 ).withBody( errorMessage )
+		return new ProxyResponseEvent().withStatusCode( 500 ).withBody( errorMessage )
 				.withHeaders( contentTypeHeaders );
 	}
 }

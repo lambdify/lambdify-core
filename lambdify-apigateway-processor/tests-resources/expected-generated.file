@@ -34,8 +34,8 @@ public class MyAnnotatedResourceRouter implements lambdify.apigateway.Router {
 	    this.instance = new lambdify.apigateway.apt.MyAnnotatedResource( semaphore );
 	}
 
-	com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent getUser1(
-			com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent request ){
+	lambdify.aws.events.apigateway.ProxyResponseEvent getUser1(
+			lambdify.aws.events.apigateway.ProxyRequestEvent request ){
 		return lambdify.apigateway.Responses.ok(this.instance.getUser(
 							lambdify.apigateway.RequestParameterReader.getPathParam( request, "id", java.lang.Long.class )
 			,				request
@@ -43,21 +43,21 @@ public class MyAnnotatedResourceRouter implements lambdify.apigateway.Router {
 	}
 
 	void saveUser2(
-			com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent request ){
+			lambdify.aws.events.apigateway.ProxyRequestEvent request ){
 		this.instance.saveUser(
 							lambdify.apigateway.RequestParameterReader.getBodyAs( request, lambdify.apigateway.apt.User.class )
 		);
 	}
 
-	com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent saveUser3(
-			com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent request ){
+	lambdify.aws.events.apigateway.ProxyResponseEvent saveUser3(
+			lambdify.aws.events.apigateway.ProxyRequestEvent request ){
 		return lambdify.apigateway.Responses.ok(this.instance.saveUser(
 							lambdify.apigateway.RequestParameterReader.getBodyAs( request, java.util.Map.class )
 		), "application/json");
 	}
 
-	com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent updateUser4(
-			com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent request ){
+	lambdify.aws.events.apigateway.ProxyResponseEvent updateUser4(
+			lambdify.aws.events.apigateway.ProxyRequestEvent request ){
 		return this.instance.updateUser(
 							lambdify.apigateway.RequestParameterReader.getQueryParam( request, "id", java.lang.Long.class )
 			,				lambdify.apigateway.RequestParameterReader.getBodyAs( request, lambdify.apigateway.apt.User.class )

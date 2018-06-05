@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import java.util.Collections;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import lambdify.aws.events.apigateway.ProxyRequestEvent;
 import lombok.val;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
@@ -18,7 +18,7 @@ class RequestRouterTest {
     @BeforeEach
     void configureSerializers(){
         val jsonSerializer = new JsonSerializer();
-        Config.INSTANCE.registerSerializer( jsonSerializer );
+        ApiGatewayConfig.INSTANCE.registerSerializer( jsonSerializer );
     }
 
     @DisplayName("Can match a single route")
@@ -26,7 +26,7 @@ class RequestRouterTest {
     {
         urlRouter.memorizeEndpoint(Methods.GET.and( "/users" ).withNoContent( userResource::retrieveUsers  ) );
         val endpoint = urlRouter.resolveRoute( request(Methods.GET, "/users" ) );
-        endpoint.invoke( new APIGatewayProxyRequestEvent() );
+        endpoint.invoke( new ProxyRequestEvent() );
         verify(userResource).retrieveUsers( any() );
     }
 
@@ -35,7 +35,7 @@ class RequestRouterTest {
     {
         urlRouter.memorizeEndpoint(Methods.GET.and( "/users" ).withNoContent( userResource::retrieveUsers  ) );
         val endpoint = urlRouter.resolveRoute( request(Methods.GET, "/users/" ) );
-        endpoint.invoke( new APIGatewayProxyRequestEvent() );
+        endpoint.invoke( new ProxyRequestEvent() );
         verify(userResource).retrieveUsers( any() );
     }
 
@@ -48,7 +48,7 @@ class RequestRouterTest {
         assertTrue( request.getPathParameters().containsKey( "id" ) );
         assertEquals( "123", request.getPathParameters().get("id") );
 
-        endpoint.invoke( new APIGatewayProxyRequestEvent() );
+        endpoint.invoke( new ProxyRequestEvent() );
         verify(userResource).retrieveSingleUser( any() );
     }
 
@@ -58,7 +58,7 @@ class RequestRouterTest {
         urlRouter.memorizeEndpoint( Methods.GET.and( "/users/:id" ).withNoContent( userResource::retrieveSingleUser  ) );
         urlRouter.memorizeEndpoint( Methods.GET.and( "/users" ).withNoContent( userResource::retrieveUsers  ) );
         val endpoint = urlRouter.resolveRoute( request(Methods.GET, "/users/1" ) );
-        endpoint.invoke( new APIGatewayProxyRequestEvent() );
+        endpoint.invoke( new ProxyRequestEvent() );
         verify(userResource).retrieveSingleUser( any() );
     }
 
@@ -123,8 +123,8 @@ class RequestRouterTest {
         assertEquals( "[{\"name\":\"User\"}]", resp.getBody() );
     }
 
-    APIGatewayProxyRequestEvent request(Methods method, String url ) {
-        val req = new APIGatewayProxyRequestEvent();
+    ProxyRequestEvent request(Methods method, String url ) {
+        val req = new ProxyRequestEvent();
         req.setPath( url );
         req.setHeaders( Collections.emptyMap() );
         req.setHttpMethod( method.toString() );

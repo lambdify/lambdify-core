@@ -2,7 +2,7 @@ package lambdify.apigateway;
 
 import static java.util.Collections.*;
 import static lambdify.apigateway.Methods.*;
-import com.amazonaws.services.lambda.runtime.events.*;
+import lambdify.aws.events.apigateway.*;
 import lombok.*;
 
 public class MyApp extends App {{
@@ -19,26 +19,26 @@ public class MyApp extends App {{
 
 class UserRepository {
 
-    APIGatewayProxyResponseEvent customNotFoundHandler( APIGatewayProxyRequestEvent request ) {
+    ProxyResponseEvent customNotFoundHandler(ProxyRequestEvent request ) {
         return Responses.notFound()
             .withHeaders( singletonMap( "X-Custom", "Not Found" ) );
     }
 
-    APIGatewayProxyResponseEvent retrieveUsers( APIGatewayProxyRequestEvent request ) {
+    ProxyResponseEvent retrieveUsers( ProxyRequestEvent request ) {
         return Responses.ok( singletonList(new User("User") ), "application/json" );
     }
 
-    APIGatewayProxyResponseEvent retrieveSingleUser( APIGatewayProxyRequestEvent request ) {
+    ProxyResponseEvent retrieveSingleUser( ProxyRequestEvent request ) {
         return Responses.ok( "{'name':'Lambda User'}", "application/json" );
     }
 
-    APIGatewayProxyResponseEvent createReportOfUsers(){
+    ProxyResponseEvent createReportOfUsers(){
         return Responses.created();
     }
 
-    void saveUser( APIGatewayProxyRequestEvent request ) {}
+    void saveUser( ProxyRequestEvent request ) {}
 
-    APIGatewayProxyResponseEvent updateUser( APIGatewayProxyRequestEvent request ){
+    ProxyResponseEvent updateUser( ProxyRequestEvent request ){
         val user = RequestParameterReader.getBodyAs( request, User.class );
         return Responses.ok( user.getName(), "plain/text" );
     }
