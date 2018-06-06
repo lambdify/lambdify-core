@@ -32,7 +32,8 @@ dependencyManagement:
     - { groupId: org.lambdify,     artifactId: lambdify-apigateway-processor,  version: "0.6.0.Final", scope: provided }
     # AWS Lambda Dependencies
     - { groupId: com.amazonaws,    artifactId: aws-lambda-java-core,      version: "${version.aws-lambda}" }
-    - { groupId: org.lambdify,    artifactId: lambdify-aws-events-apigateway,  version: "${version.aws-events}" }
+    - { groupId: org.lambdify,     artifactId: lambdify-core,             version: "${version.aws-events}" }
+    - { groupId: org.lambdify,     artifactId: lambdify-aws-events-apigateway,  version: "${version.aws-events}" }
     - { groupId: com.amazonaws,    artifactId: aws-lambda-java-log4j2,    version: "${version.aws-log4j2}" }
     # Log4j2 Dependencies
     - { groupId: org.apache.logging.log4j,  artifactId: log4j-core,       version: "${version.log4j2}" }
