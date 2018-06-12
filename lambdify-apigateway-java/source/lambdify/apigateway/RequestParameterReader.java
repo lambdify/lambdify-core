@@ -37,7 +37,13 @@ public interface RequestParameterReader {
 		return ApiGatewayConfig.INSTANCE.paramReader().convert( value, clazz );
 	}
 
+	@SuppressWarnings( "unchecked" )
 	static<T> T getBodyAs( ProxyRequestEvent request, Class<T> type ) {
+		if ( String.class.equals( type ) )
+			return (T) request.getBody();
+		else if ( byte[].class.equals( type ) )
+			return (T) request.getBody().getBytes();
+
 		val serializer = getSerializer( request );
 		if ( serializer == null )
 			throw new RuntimeException( "Could not found a valid serializer for this request." );

@@ -1,10 +1,9 @@
 package lambdify.apigateway;
 
+import static lambdify.apigateway.Defaults.createRequest;
 import static lambdify.apigateway.Methods.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import java.util.Collections;
 import com.amazonaws.services.lambda.runtime.*;
-import lambdify.aws.events.apigateway.ProxyRequestEvent;
 import lombok.*;
 import org.junit.jupiter.api.*;
 
@@ -59,13 +58,6 @@ class AppTest {
         val response = app.handleRequest(req, context);
         assertEquals(200, (int)response.getStatusCode() );
         assertEquals( "{'name':'Lambda User'}", response.getBody() );
-    }
-
-    ProxyRequestEvent createRequest(String path, Methods method ) {
-        return new ProxyRequestEvent()
-            .withPath( path )
-	        .withHttpMethod( method.toString() )
-	        .withHeaders( Collections.emptyMap() );
     }
 
     @Data class DefaultAwsContext implements Context {
