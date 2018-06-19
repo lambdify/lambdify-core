@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 /**
  *
  */
-@Retention( RetentionPolicy.SOURCE )
+@Retention( RetentionPolicy.RUNTIME )
 @Target({ElementType.PARAMETER, ElementType.METHOD})
 public @interface Context {
 
