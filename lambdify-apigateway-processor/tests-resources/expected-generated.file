@@ -36,33 +36,49 @@ public class MyAnnotatedResourceRouter implements lambdify.apigateway.Router {
 
 	lambdify.aws.events.apigateway.ProxyResponseEvent getUser1(
 			lambdify.aws.events.apigateway.ProxyRequestEvent request ){
+		try {
 		return lambdify.apigateway.Responses.ok(this.instance.getUser(
 							lambdify.apigateway.RequestParameterReader.getPathParam( request, "id", java.lang.Long.class )
 			,				request
 		), "");
+		} catch ( Throwable cause ) {
+			throw new lambdify.apigateway.UnhandledException( cause );
+		}
 	}
 
 	void saveUser2(
 			lambdify.aws.events.apigateway.ProxyRequestEvent request ){
+		try {
 		this.instance.saveUser(
 							lambdify.apigateway.apt.Account.produceAccount( request )
 			,				lambdify.apigateway.RequestParameterReader.getBodyAs( request, lambdify.apigateway.apt.User.class )
 		);
+		} catch ( Throwable cause ) {
+			throw new lambdify.apigateway.UnhandledException( cause );
+		}
 	}
 
 	lambdify.aws.events.apigateway.ProxyResponseEvent saveUser3(
 			lambdify.aws.events.apigateway.ProxyRequestEvent request ){
+		try {
 		return lambdify.apigateway.Responses.ok(this.instance.saveUser(
 							lambdify.apigateway.RequestParameterReader.getBodyAs( request, java.util.Map.class )
 		), "application/json");
+		} catch ( Throwable cause ) {
+			throw new lambdify.apigateway.UnhandledException( cause );
+		}
 	}
 
 	lambdify.aws.events.apigateway.ProxyResponseEvent updateUser4(
 			lambdify.aws.events.apigateway.ProxyRequestEvent request ){
+		try {
 		return this.instance.updateUser(
 							lambdify.apigateway.RequestParameterReader.getQueryParam( request, "id", java.lang.Long.class )
 			,				lambdify.apigateway.RequestParameterReader.getBodyAs( request, lambdify.apigateway.apt.User.class )
 		);
+		} catch ( Throwable cause ) {
+			throw new lambdify.apigateway.UnhandledException( cause );
+		}
 	}
 
 }

@@ -40,6 +40,7 @@ public class {{generatedSimpleName}} implements lambdify.apigateway.Router {
 {{^constructor}}
 	{{^voidMethod}}lambdify.aws.events.apigateway.ProxyResponseEvent{{/voidMethod}}{{#voidMethod}}void{{/voidMethod}} {{name}}{{counter}}(
 			lambdify.aws.events.apigateway.ProxyRequestEvent request ){
+		try {
 		{{^voidMethod}}return {{^returnsResponse}}lambdify.apigateway.Responses.ok({{/returnsResponse}}{{/voidMethod}}this.instance.{{name}}(
 		{{#parameterIterable}}
 			{{^first}},{{/first}}{{#data}}
@@ -64,6 +65,9 @@ public class {{generatedSimpleName}} implements lambdify.apigateway.Router {
 			{{/data}}
 		{{/parameterIterable}}
 		){{^voidMethod}}{{^returnsResponse}}, {{{contentType}}}){{/returnsResponse}}{{/voidMethod}};
+		} catch ( Throwable cause ) {
+			throw new lambdify.apigateway.UnhandledException( cause );
+		}
 	}
 {{/constructor}}
 
