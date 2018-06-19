@@ -1,5 +1,6 @@
 package lambdify.apigateway.apt;
 
+import static lambdify.apigateway.apt.APT.getCanonicalName;
 import java.util.*;
 import java.util.Map.Entry;
 import javax.lang.model.element.*;
@@ -9,9 +10,18 @@ import lambdify.apigateway.apt.Generated.*;
 /**
  *
  */
-public class ClassParser {
+public class RouterClassParser {
 
 	Map<String, Type> cachedTypes = new HashMap<>();
+	final ContextualProducersParser producersParser;
+
+	public RouterClassParser(ContextualProducersParser producersParser) {
+		this.producersParser = producersParser;
+	}
+
+	boolean containsClasses(){
+		return !cachedTypes.isEmpty();
+	}
 
 	Collection<Type> getTypes(){
 		final ArrayList<Type> types = new ArrayList<>( cachedTypes.values() );
@@ -19,7 +29,7 @@ public class ClassParser {
 		return types;
 	}
 
-	void memorizeMethod(ExecutableElement method ) {
+	void memorizeMethod( ExecutableElement method ) {
 		TypeElement typeElement = (TypeElement) method.getEnclosingElement();
 		Generated.Type type = cachedTypes.computeIfAbsent( typeElement.asType().toString(), t -> createTypeFrom( t, typeElement ) );
 		type.methods.add( createMethod( (ExecutableElement) method ) );
@@ -57,11 +67,17 @@ public class ClassParser {
 
 	private Generated.Element createParameter( VariableElement parameter )
 	{
+		final String typeCanonicalName = getCanonicalName( parameter );
 		final Generated.Element param = new Generated.Element()
 				.setName( parameter.getSimpleName().toString() )
-				.setType( getCanonicalName( parameter ) );
+				.setType( typeCanonicalName );
 
-		return param.setAnnotations( loadAnnotations( parameter, param ) );
+		param.setAnnotations( loadAnnotations( parameter, param ) );
+
+		if ( param.getContext() != null )
+			param.setContextualProducer( producersParser.getProducerFor( typeCanonicalName ) );
+
+		return param;
 	}
 
 	private List<Generated.Annotation> loadAnnotations( Element element, Generated.Element parent )
@@ -85,12 +101,4 @@ public class ClassParser {
 				.setParameters( values ).setType( type );
 	}
 
-	static String getCanonicalName( Element parameter ) {
-		final String simpleName = parameter.asType().toString();
-		return getCanonicalName( simpleName );
-	}
-
-	static String getCanonicalName( String simpleName ) {
-		return simpleName.replaceAll( "<.*", "" );
-	}
 }

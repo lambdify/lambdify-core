@@ -1,15 +1,18 @@
 package lambdify.apigateway.apt;
 
+import static javax.lang.model.element.ElementKind.METHOD;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.function.Consumer;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.*;
 import javax.tools.JavaFileObject;
 import com.github.mustachejava.*;
-import lambdify.apigateway.ann.Route;
-import lambdify.apigateway.apt.Generated.Type;
+import lambdify.apigateway.ann.*;
+import lambdify.apigateway.apt.Generated.*;
 
 /**
  *
@@ -19,7 +22,8 @@ public class RouteProcessor extends AbstractProcessor {
 
 	static final String TEMPLATE_FILE = "META-INF/generated-class.mustache";
 
-	final ClassParser classParser = new ClassParser();
+	final ContextualProducersParser producersParser = new ContextualProducersParser();
+	final RouterClassParser routerClassParser = new RouterClassParser( producersParser );
 	final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
 	final String content;
 
@@ -61,34 +65,45 @@ public class RouteProcessor extends AbstractProcessor {
 	}
 
 	@Override
-	public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
-		final Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith( Route.class );
+	public boolean process(Set<? extends TypeElement> set, RoundEnvironment round) {
+		processMethodsAnnotatedWith( round, Context.class, producersParser::memorizeMethod );
+		processMethodsAnnotatedWith( round, Route.class, routerClassParser::memorizeMethod );
+		if ( routerClassParser.containsClasses() )
+			generateClasses();
+		return false;
+	}
+
+	private void processMethodsAnnotatedWith(
+		RoundEnvironment roundEnvironment,
+		Class<? extends java.lang.annotation.Annotation> annotation,
+		Consumer<ExecutableElement> callback )
+	{
+		final Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith( annotation );
 		if ( !elements.isEmpty() ) {
 			for ( Element element : elements )
-				classParser.memorizeMethod( (ExecutableElement) element );
-			generateClasses();
+				if ( METHOD.equals( element.getKind() ) )
+					callback.accept( (ExecutableElement) element );
 		}
-
-		return true;
 	}
 
 	private void generateClasses() {
 		final Filer filer = processingEnv.getFiler();
+		final Collection<Type> types = routerClassParser.getTypes();
 
-		final Collection<Type> types = classParser.getTypes();
 		for ( Type type : types )
 			try {
 				final String name = type.getPackageName() + "." + type.getGeneratedSimpleName();
 				final JavaFileObject sourceFile = filer.createSourceFile( name );
-				/*Writer string = new StringWriter();
-				generateClass( type, string );
-				System.out.println( string.toString() );*/
-				try (final Writer writer = sourceFile.openWriter()) {
-					generateClass( type, writer );
-				}
+				generateClass( type, sourceFile );
 			} catch ( IOException e ) {
 				throw new IllegalStateException( e );
 			}
+	}
+
+	private void generateClass( Type type, JavaFileObject sourceFile ) throws IOException {
+		try (final Writer writer = sourceFile.openWriter()) {
+			generateClass( type, writer );
+		}
 	}
 
 	private void generateClass( Type type, Writer writer ) throws IOException {

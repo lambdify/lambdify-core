@@ -45,7 +45,8 @@ public class MyAnnotatedResourceRouter implements lambdify.apigateway.Router {
 	void saveUser2(
 			lambdify.aws.events.apigateway.ProxyRequestEvent request ){
 		this.instance.saveUser(
-							lambdify.apigateway.RequestParameterReader.getBodyAs( request, lambdify.apigateway.apt.User.class )
+							lambdify.apigateway.apt.Account.produceAccount( request )
+			,				lambdify.apigateway.RequestParameterReader.getBodyAs( request, lambdify.apigateway.apt.User.class )
 		);
 	}
 

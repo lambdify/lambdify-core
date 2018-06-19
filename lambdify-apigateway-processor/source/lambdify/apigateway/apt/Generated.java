@@ -92,6 +92,7 @@ public interface Generated {
 	@Data class Element {
 		String name;
 		String type;
+		String contextualProducer;
 		List<Annotation> annotations = new ArrayList<>();
 
 		public Annotation getPathParameter(){
@@ -104,6 +105,10 @@ public interface Generated {
 
 		public Annotation getHeaderParameter(){
 			return getAnnotation( HeaderParam.class );
+		}
+
+		public Annotation getContext(){
+			return getAnnotation( Context.class );
 		}
 
 		public boolean getBodyParameter(){

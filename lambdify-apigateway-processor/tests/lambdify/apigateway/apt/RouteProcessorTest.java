@@ -4,7 +4,7 @@ import static com.google.testing.compile.Compiler.javac;
 import static org.junit.Assert.*;
 import java.io.*;
 import java.nio.file.*;
-import java.util.Locale;
+import java.util.*;
 import javax.annotation.processing.Processor;
 import javax.tools.*;
 import com.google.common.collect.ImmutableList;
@@ -20,12 +20,13 @@ public class RouteProcessorTest {
 
 	final File
 		classFile = new File( "tests/lambdify/apigateway/apt/MyAnnotatedResource.java" ),
+		contextProducerFile = new File( "tests/lambdify/apigateway/apt/Account.java" ),
 		expectedGeneratedFile = new File("tests-resources/expected-generated.file" );
 
 	@Test
 	void canCompileAndGenerateTheExpectedRouter() throws IOException {
 		val processor = new RouteProcessor();
-		val compilation = compile( processor, classFile );
+		val compilation = compile( processor, contextProducerFile, classFile );
 		assertNotNull( compilation );
 
 		val generated = compilation.generatedSourceFiles().get( 0 );
@@ -35,11 +36,18 @@ public class RouteProcessorTest {
 	}
 
 	@SneakyThrows
-	private Compilation compile(Processor processor, File classFile) {
+	private Compilation compile(Processor processor, File...classFiles) {
 		val compiler = javac()
 			.withProcessors( LombokProcessors.getProcessors() )
 			.withProcessors( processor );
-		val compilation = compiler.compile( JavaFileObjects.forResource( classFile.toURI().toURL() ) );
+
+		val javaFiles = new JavaFileObject[classFiles.length];
+		for ( int i=0; i<classFiles.length; i++ ) {
+			val classFile = classFiles[i];
+			javaFiles[i] = JavaFileObjects.forResource( classFile.toURI().toURL() );
+		}
+
+		val compilation = compiler.compile( javaFiles );
 		print( compilation.errors() );
 		print( compilation.diagnostics() );
 		print( compilation.notes() );

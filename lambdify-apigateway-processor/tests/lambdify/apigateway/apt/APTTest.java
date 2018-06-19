@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Test;
 /**
  *
  */
-class ClassParserTest {
+class APTTest {
 
 	@Test void canConvertElementOfGenericTypeToCanonicalName(){
-		val canonicalName = ClassParser.getCanonicalName( "java.lang.Map<String, Object>" );
+		val canonicalName = APT.getCanonicalName( "java.lang.Map<String, Object>" );
 		assertEquals( "java.lang.Map", canonicalName );
 	}
 
 	@Test void canConvertElementOfRegularTypeToCanonicalName(){
-		val canonicalName = ClassParser.getCanonicalName( "java.lang.String" );
+		val canonicalName = APT.getCanonicalName( "java.lang.String" );
 		assertEquals( "java.lang.String", canonicalName );
 	}
 }

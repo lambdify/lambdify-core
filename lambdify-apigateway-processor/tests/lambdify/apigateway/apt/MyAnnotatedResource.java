@@ -25,7 +25,7 @@ public class MyAnnotatedResource {
 
 	@Route( url = "/api/users", method = POST)
 	@ContentType("application/json")
-	void saveUser( @Body User user ){
+	void saveUser( @Context Account account, @Body User user ){
 
 	}
 

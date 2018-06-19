@@ -55,6 +55,9 @@ public class {{generatedSimpleName}} implements lambdify.apigateway.Router {
 			{{#bodyParameter}}
 				lambdify.apigateway.RequestParameterReader.getBodyAs( request, {{type}}.class )
 			{{/bodyParameter}}
+			{{#context}}
+				{{contextualProducer}}( request )
+			{{/context}}
 			{{#APIGatewayRequest}}
 				{{name}}
 			{{/APIGatewayRequest}}
