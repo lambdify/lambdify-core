@@ -39,6 +39,8 @@ public class MyAnnotatedResourceRouter implements lambdify.apigateway.Router {
 		try {
 		return lambdify.apigateway.Responses.ok(this.instance.getUser(
 							lambdify.apigateway.RequestParameterReader.getPathParam( request, "id", java.lang.Long.class )
+			,				lambdify.apigateway.RequestParameterReader.getHeaderParam( request, "accept", java.lang.String.class )
+			,				lambdify.apigateway.RequestParameterReader.getQueryParam( request, "page", java.lang.String.class )
 			,				request
 		), "");
 		} catch ( Throwable cause ) {

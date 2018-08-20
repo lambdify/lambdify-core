@@ -8,7 +8,7 @@ import lombok.val;
  */
 public interface RequestParameterReader {
 
-	static <T> T getHeader(ProxyRequestEvent request, String key, Class<T> clazz ) {
+	static <T> T getHeaderParam(ProxyRequestEvent request, String key, Class<T> clazz ) {
 		val data = request.getHeaders();
 		if ( data == null ) return null;
 		val value = data.get( key );

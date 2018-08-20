@@ -19,7 +19,7 @@ public class MyAnnotatedResource {
 	}
 
 	@Route( url = "/api/users/:id", method = GET )
-	User getUser(@PathParam("id") Long id, ProxyRequestEvent request ){
+	User getUser(@PathParam("id") Long id, @HeaderParam("accept") String accept, @QueryParam("page") String page, ProxyRequestEvent request ){
 		return new User( id );
 	}
 
