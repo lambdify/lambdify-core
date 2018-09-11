@@ -11,11 +11,6 @@ packaging: pom
 modules:
  - "lambdify-plugin"
  - "lambdify-core"
- - "lambdify-apigateway-java"
- - "lambdify-apigateway-kotlin"
- - "lambdify-apigateway-processor"
- - "lambdify-project-java"
- - "lambdify-project-kotlin"
 
 repositories:
   - { id: jcenter, url: "https://jcenter.bintray.com" }
