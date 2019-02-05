@@ -26,10 +26,12 @@ dependencies:
 - { groupId: org.apache.maven.plugin-tools, artifactId: maven-plugin-annotations,     version: "${version.maven-ann}" }
 - { groupId: org.codehaus.plexus,           artifactId: plexus-component-annotations, version: "${version.plexus}" }
 
-# test only dependencies
-# - { groupId: ch.qos.logback,  artifactId: logback-classic, version: 1.2.3, scope: test }
-
 build:
+  resources:
+    - directory: "${config.dir.resource}"
+      includes: [ "**/*" ]
+      excludes: [ "**/*.java" ]
+
   plugins:
   - groupId: org.apache.maven.plugins
     artifactId: maven-plugin-plugin

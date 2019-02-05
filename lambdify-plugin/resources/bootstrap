@@ -1,0 +1,11 @@
+#!/bin/sh
+cd $(dirname $0)
+
+# VARIABLES
+TOTAL_MEM=$(cat /proc/meminfo | grep MemTotal | sed 's/  */ /g;s/.*: //;s/kB/\\\/ 1024/i;s/mB/\\\/ 1024 \\\ 1024/g')
+MAX_HEAP_MEM=$(echo "$TOTAL_MEM \\* 60 / 100")
+HEAP_MEM=${HEAP_MEM:-$MAX_MEM}
+JAVA_OPTS=${JAVA_OPTS:- -Xmx=$HEAP_MEM}
+
+# MAIN
+java ${JAVA_OPTS} -cp .:lib/* [[main-class]]

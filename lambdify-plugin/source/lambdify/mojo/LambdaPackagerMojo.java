@@ -1,7 +1,9 @@
 package lambdify.mojo;
 
-import java.io.File;
+import java.io.*;
 import java.net.*;
+import java.security.*;
+
 import lombok.*;
 import org.apache.maven.plugin.*;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -19,6 +21,9 @@ public class LambdaPackagerMojo extends AWSMojo {
 
 	@Parameter( defaultValue = "true", required = true )
 	@Getter Boolean enabled;
+
+	@Parameter( defaultValue = "${project.build.directory}", required = true )
+	String outputDirectory;
 
 	@Parameter( defaultValue = "${project.build.directory}/${project.build.finalName}.jar", required = true )
 	String jarFileName;
@@ -63,7 +68,30 @@ public class LambdaPackagerMojo extends AWSMojo {
 		try ( val zipPackage = new ZipPackager( zipFileName ) ) {
 			zipPackage.copyDependenciesToZip( project );
 			zipPackage.copyFilesFromJarToZip( jarFileName );
+			zipPackage.addFile("bootstrap", readBootstrapScript() );
 		}
 		return new File( zipFileName );
+	}
+
+	private InputStream readBootstrapScript() throws MojoExecutionException {
+		val bootstrap = loadBootstrapScript();
+		val content = convertStreamToString(bootstrap)
+				.replace( "[[main-class]]", handler );
+		return new ByteArrayInputStream(content.getBytes());
+	}
+
+	private InputStream loadBootstrapScript() throws MojoExecutionException {
+		val bootstrap = getClass().getResourceAsStream( "/bootstrap" );
+		if ( bootstrap == null ){
+			val msg = "Failed to include default 'bootstrap' script.";
+			throw new MojoExecutionException( msg );
+		}
+
+		return bootstrap;
+	}
+
+	private static String convertStreamToString(java.io.InputStream is) {
+		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+		return s.hasNext() ? s.next() : "";
 	}
 }

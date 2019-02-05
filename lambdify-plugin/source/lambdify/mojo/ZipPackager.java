@@ -1,10 +1,12 @@
 package lambdify.mojo;
 
 import java.io.*;
+import java.net.*;
+import java.nio.file.*;
 import java.util.*;
 import lombok.*;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.*;
 import org.apache.maven.project.MavenProject;
 
 /**
@@ -46,7 +48,7 @@ public class ZipPackager implements AutoCloseable {
 
 		val jarName = "lib/" + artifact.getArtifactId() + "." + artifact.getType();
 		try ( val inputStream = new FileInputStream( artifactAbsolutePath ) ) {
-			zip.add( jarName, inputStream );
+			addFile( jarName, inputStream );
 		}
 	}
 
@@ -56,6 +58,10 @@ public class ZipPackager implements AutoCloseable {
 		} catch ( IOException e ) {
 			throw new MojoExecutionException( "Can't read " + path, e );
 		}
+	}
+
+	void addFile( String fileName, InputStream content ) {
+		zip.add( fileName, content );
 	}
 
 	@Override
