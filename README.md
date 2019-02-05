@@ -10,14 +10,14 @@ Aside of that, one of the biggest goals of Lambdify is being compatible with Gra
 response times during the function execution.
 
 ## Creating a Lambda function
-All you have to do is create a Java class that implements the interface `AwsBaseRequestHandler` or extends
-`AwsRequestHandler`.
+All you have to do is create a Java class that implements the interface `RequestHandler`. That
+will be the entry point of your Lambda Function.
 
 ```java
 import lambdify.core.*;
 import lombok.*;
 
-public class MyLambdaFunction extends AwsRequestHandler<FullName, String> {
+public class MyLambdaFunction implements RequestHandler<FullName, String> {
 
     public String handleRequest( FullName fullName ) {
         return fullName.firstName + " " + fullName.lastName;
@@ -31,27 +31,33 @@ public class MyLambdaFunction extends AwsRequestHandler<FullName, String> {
 }
 ```
 
-Now, we need to setup our maven project by setting up the `lambdify-plugin`:
+Now, we need to configure our maven's `pom.yml` file by setting up the `lambdify-plugin`:
 ```yml
 build:
   plugins:
     # Deploys your app as a AWS Lambda Function
     - groupId: org.lambdify
       artifactId: lambdify-plugin
-      version: "0.7.3.Final"
+      version: "<LAMBDIFY-VERSION-HERE>"
       executions:
         - { id: "package", goals: ["package"], phase: "verify" }
+
+        # optional, should be included if you want to upload the artifact
+        # to S3 using maven.
         - { id: "s3deploy", goals: ["s3-deploy"], phase: "deploy" }
       configuration:
         enabled:            ${config.lambdify.enabled}
+        handler:            "${config.lambdify.handler}"
+
+        # required only for S3 artifact deployment
         regionName:         "${config.lambdify.region}"
         jarFileName:        "${config.lambdify.jar-name}"
         zipFileName:        "${config.lambdify.zip-name}"
-        handler:            "${config.lambdify.handler}"
         s3Key:              "${config.lambdify.s3.key}"
         s3Bucket:           "${config.lambdify.s3.bucket}"
 ```
 
+For more details, consult the Lambdify's [documentation](https://github.com/lambdify/lambdify).
 
 ## Reporting Bugs/Feature Requests
 
