@@ -11,10 +11,9 @@ packaging: jar
 properties:
   # versions of libraries used on this project
   version.aws-lambda: 1.2.0
+  version.lombok: 1.18.4
 
 dependencies:
-# AWS Lambda Dependencies
-- { groupId: com.amazonaws,   artifactId: aws-lambda-java-core,   version: "${version.aws-lambda}" }
 # Test Dependencies
 - { groupId: org.junit.jupiter,     artifactId: junit-jupiter-engine }
 - { groupId: org.mockito,           artifactId: mockito-core }

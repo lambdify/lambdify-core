@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 /**
  *
  */
-class LambdaConfigTest {
+class AwsLambdaConfigTest {
 
 	@Test void configCanFindTheSerializerOnTheClasspath(){
-		val serializer = LambdaConfig.INSTANCE.serializer();
+		val serializer = AwsLambdaConfig.INSTANCE.serializer();
 		assertNotNull( serializer );
-		assertEquals( SampleJsonSerializer.class, serializer.getClass() );
+		assertEquals( SampleJsonSerializerAws.class, serializer.getClass() );
 	}
 }

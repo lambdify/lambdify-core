@@ -1,18 +1,19 @@
 package lambdify.core;
 
-import static org.junit.jupiter.api.Assertions.*;
-import java.util.Map;
-import com.amazonaws.services.lambda.runtime.Context;
 import lambdify.core.SampleLambdaFunction.*;
 import lombok.*;
+
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
  */
-public class SampleLambdaFunction extends LambdaStreamFunction<Input, Output> {
+public class SampleLambdaFunction implements RequestHandler<Input, Output> {
 
 	@Override
-	public Output handleRequest(Input input, Context context) {
+	public Output handleRequest(Input input) {
 		assertNotNull( input );
 		assertNotNull( input.map );
 		assertEquals( "value", input.map.get( "key" ) );
@@ -32,4 +33,7 @@ public class SampleLambdaFunction extends LambdaStreamFunction<Input, Output> {
 	public static class Output {
 		String status;
 	}
+}
+
+class InheritedLambdaFunction extends SampleLambdaFunction {
 }

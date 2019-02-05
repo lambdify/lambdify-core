@@ -3,7 +3,6 @@ package lambdify.mojo;
 import java.io.File;
 import java.net.*;
 import lombok.*;
-import lombok.experimental.var;
 import org.apache.maven.plugin.*;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.*;

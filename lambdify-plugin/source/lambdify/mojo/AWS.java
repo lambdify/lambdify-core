@@ -10,8 +10,7 @@ import com.amazonaws.services.lambda.model.*;
 import com.amazonaws.services.lambda.model.Runtime;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.model.*;
-import lombok.experimental.var;
-import lombok.val;
+import lombok.*;
 
 class AWS {
 

@@ -10,6 +10,7 @@ properties:
   version.maven-core: 3.5.3
   version.maven-ann: 3.5.1
   version.plexus: 1.7.1
+  version.lombok: 1.18.4
 
 parent: { groupId: io.skullabs.boilerplates, artifactId: java-8, version: 1.0.0 }
 

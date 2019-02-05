@@ -7,16 +7,15 @@ import java.io.*;
  * deserialization process that happens at request and response time of a Lambda function
  * execution.
  */
-public interface FunctionSerializer {
+public interface AwsFunctionSerializer {
 
 	/**
 	 * Serializes an object writing its output to the {@code outputStream}.
 	 *
-	 * @param unserializedBody
-	 * @param outputStream
+	 * @param deserializedBody
 	 * @throws IOException
 	 */
-	void serialize(Object unserializedBody, OutputStream outputStream) throws IOException;
+	byte[] serialize(Object deserializedBody) throws IOException;
 
 	/**
 	 * Deserializes a stream by transforming it into a object which type corresponds
@@ -28,5 +27,5 @@ public interface FunctionSerializer {
 	 * @throws IOException
 	 * @return
 	 */
-	<T> T deserialize(InputStream inputStream, Class<T> type) throws IOException;
+	<T> T deserialize(byte[] inputStream, Class<T> type) throws IOException;
 }
