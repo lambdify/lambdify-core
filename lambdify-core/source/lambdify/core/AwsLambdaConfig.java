@@ -22,10 +22,10 @@ public class AwsLambdaConfig {
 	@SuppressWarnings( "LoopStatementThatDoesntLoop" )
 	private AwsFunctionSerializer loadDefaultSerializer() {
 		val serializers = ServiceLoader.load( AwsFunctionSerializer.class );
-		for ( AwsFunctionSerializer serializer : serializers ) {
+		for ( val serializer : serializers ) {
+			System.err.println( "Function Serializer found: " + serializer.getClass().getCanonicalName() );
 			return serializer;
 		}
-		return null;
+		throw new AwsLambdaFailure("No Function Serializer registered.");
 	}
-
 }

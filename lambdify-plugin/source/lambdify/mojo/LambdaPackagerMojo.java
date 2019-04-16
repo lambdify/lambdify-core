@@ -2,7 +2,6 @@ package lambdify.mojo;
 
 import java.io.*;
 import java.net.*;
-import java.security.*;
 
 import lombok.*;
 import org.apache.maven.plugin.*;
@@ -22,7 +21,7 @@ public class LambdaPackagerMojo extends AWSMojo {
 	@Parameter( defaultValue = "true", required = true )
 	@Getter Boolean enabled;
 
-	@Parameter( defaultValue = "${project.build.directory}", required = true )
+	@Parameter( defaultValue = "${project.build.directory}/zip-content", required = true )
 	String outputDirectory;
 
 	@Parameter( defaultValue = "${project.build.directory}/${project.build.finalName}.jar", required = true )
@@ -64,27 +63,32 @@ public class LambdaPackagerMojo extends AWSMojo {
 		return classPath;
 	}
 
-	private File generatePackageFile() throws MojoExecutionException {
-		try ( val zipPackage = new ZipPackager( zipFileName ) ) {
+	private File generatePackageFile() throws IOException {
+		try (
+			val zipPackage = new ZipPackager( zipFileName, outputDirectory );
+			val jarFile = new FileInputStream( jarFileName );
+		) {
 			zipPackage.copyDependenciesToZip( project );
-			zipPackage.copyFilesFromJarToZip( jarFileName );
-			zipPackage.addFile("bootstrap", readBootstrapScript() );
+			//zipPackage.copyFilesFromJarToZip( jarFileName );
+			zipPackage.addExecutableFile( "lib/application.jar", jarFile );
+			zipPackage.addExecutableFile("bootstrap", readEmbeddedFile( "/bootstrap" ) );
+			zipPackage.addExecutableFile("META-INF/services/lambdify.core.RawRequestHandler", readEmbeddedFile( "/RawRequestHandler" ) );
 		}
 		return new File( zipFileName );
 	}
 
-	private InputStream readBootstrapScript() throws MojoExecutionException {
-		val bootstrap = loadBootstrapScript();
+	private InputStream readEmbeddedFile( String fileName ) throws IOException {
+		val bootstrap = loadEmbeddedFile( fileName );
 		val content = convertStreamToString(bootstrap)
 				.replace( "[[main-class]]", handler );
 		return new ByteArrayInputStream(content.getBytes());
 	}
 
-	private InputStream loadBootstrapScript() throws MojoExecutionException {
-		val bootstrap = getClass().getResourceAsStream( "/bootstrap" );
+	private InputStream loadEmbeddedFile( String fileName ) throws IOException {
+		val bootstrap = getClass().getResourceAsStream( fileName );
 		if ( bootstrap == null ){
 			val msg = "Failed to include default 'bootstrap' script.";
-			throw new MojoExecutionException( msg );
+			throw new IOException( msg );
 		}
 
 		return bootstrap;

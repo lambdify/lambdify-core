@@ -69,7 +69,7 @@ public class AwsLambdaRuntime {
     final byte[] body;
 }
 
-class AwsLambdaCommunicationFailure extends RuntimeException {
+class AwsLambdaCommunicationFailure extends AwsLambdaFailure {
 
     AwsLambdaCommunicationFailure( int status, byte[] msg ) {
         super( status + " -> " + new String( msg ) );

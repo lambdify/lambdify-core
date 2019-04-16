@@ -1,45 +1,48 @@
 package lambdify.mojo;
 
-import java.io.*;
-import java.net.*;
-import java.nio.file.*;
-import java.util.*;
 import lombok.*;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.*;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.artifact.*;
+import org.apache.maven.project.*;
+
+import java.io.*;
+import java.nio.file.*;
+import java.nio.file.attribute.*;
+import java.util.*;
+import java.util.stream.*;
 
 /**
  *
  */
 public class ZipPackager implements AutoCloseable {
 
-	final ZipFileWriter zip;
+	final Path outputTmpFolder;
+	final String fileName;
 
-	public ZipPackager( String fileName ) throws MojoExecutionException {
-		zip = new ZipFileWriter( fileName );
+	public ZipPackager( String fileName, String outputTmpFolder ) {
+		this.fileName = fileName;
+		this.outputTmpFolder = Paths.get(outputTmpFolder);
 	}
 
-	void copyDependenciesToZip( MavenProject project ) throws MojoExecutionException {
+	void copyDependenciesToZip( MavenProject project ) throws IOException {
 		try {
-			final Set<String> namesAlreadyIncludedToZip = new HashSet<>();
-			for ( final Artifact artifact : (Set<Artifact>) project.getArtifacts() ) {
-				final String artifactAbsolutePath = getArtifactAbsolutePath( artifact );
+			val namesAlreadyIncludedToZip = new HashSet<>();
+			for ( val artifact : project.getArtifacts()) {
+				val artifactAbsolutePath = getArtifactAbsolutePath( artifact );
 				if ( !namesAlreadyIncludedToZip.contains( artifactAbsolutePath ) ) {
 					copyDependencyToZip( artifact, artifactAbsolutePath );
 					namesAlreadyIncludedToZip.add( artifactAbsolutePath );
 				}
 			}
 		} catch ( IOException cause ) {
-			throw new MojoExecutionException( "Can't copy dependencies to zip", cause );
+			throw new IOException( "Can't copy dependencies to zip", cause );
 		}
 	}
 
-	String getArtifactAbsolutePath( final Artifact artifact ) {
+	private String getArtifactAbsolutePath(final Artifact artifact) {
 		return artifact.getFile().getAbsolutePath();
 	}
 
-	void copyDependencyToZip(
+	private void copyDependencyToZip(
 			final Artifact artifact,
 			final String artifactAbsolutePath ) throws IOException
 	{
@@ -48,24 +51,60 @@ public class ZipPackager implements AutoCloseable {
 
 		val jarName = "lib/" + artifact.getArtifactId() + "." + artifact.getType();
 		try ( val inputStream = new FileInputStream( artifactAbsolutePath ) ) {
-			addFile( jarName, inputStream );
+			memorizeFileToBeIncludedInTheZip( jarName, inputStream );
 		}
 	}
 
-	void copyFilesFromJarToZip( final String path ) throws MojoExecutionException {
-		try ( ZipFileReader reader = new ZipFileReader( path.replace( "%20", " " ) ) ) {
-			reader.read( zip::add );
-		} catch ( IOException e ) {
-			throw new MojoExecutionException( "Can't read " + path, e );
-		}
+	private void memorizeFileToBeIncludedInTheZip( String name, InputStream content ){
+		memorizeFileToBeIncludedInTheZip(name, content, false);
 	}
 
-	void addFile( String fileName, InputStream content ) {
-		zip.add( fileName, content );
+	private void memorizeFileToBeIncludedInTheZip( String name, InputStream content, boolean executable ) {
+		val file = outputTmpFolder.resolve(name);
+		val folder = file.toFile().getParentFile();
+		if ( !folder.exists() && !folder.mkdirs() )
+			throw new RuntimeException( "Cannot create directory: " + folder.toString() );
+
+		if ( !Files.isDirectory(file) )
+			try {
+				Files.copy( content, file, StandardCopyOption.REPLACE_EXISTING );
+				setPermissions( file, executable );
+			} catch (IOException e) {
+				throw new RuntimeException( "Cannot create file: " + file.toString(), e );
+			}
+	}
+
+	private void setPermissions( Path path, boolean executable ) throws IOException {
+		val permission = executable ? "rwxr-xr-x" : "rw-r--r--";
+		val permissions = PosixFilePermissions.fromString( permission );
+		Files.setPosixFilePermissions( path, permissions );
+	}
+
+	void addExecutableFile(String fileName, InputStream content ) {
+		memorizeFileToBeIncludedInTheZip(fileName, content, true);
 	}
 
 	@Override
-	public void close() throws MojoExecutionException {
-		zip.close();
+	public void close() throws IOException {
+		val rootDir = outputTmpFolder.toFile().getAbsolutePath();
+
+		val filesToBeCompressed = Files.walk( outputTmpFolder )
+			.filter( f -> !Files.isDirectory( f ) )
+			.map( f ->
+				f.toFile().getAbsolutePath()
+				 .replace( rootDir, "" )
+				 .replaceFirst("/", "")
+			)
+			.toArray(String[]::new);
+
+		val args = new String[filesToBeCompressed.length+1];
+		args[0] = fileName;
+		System.arraycopy( filesToBeCompressed, 0, args, 1, filesToBeCompressed.length );
+
+		CommandRunner
+			.command("zip", args )
+			.workingDirectory( outputTmpFolder.toString() )
+			.run()
+		;
 	}
 }

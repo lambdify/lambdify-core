@@ -11,11 +11,11 @@ public class ZipFileReader implements AutoCloseable {
 	static final String MESSAGE_CANT_OPEN_ZIP = "Can't open zip file";
 	final ZipFile zip;
 
-	public ZipFileReader( final String zipFileName ) throws MojoExecutionException {
+	public ZipFileReader( final String zipFileName ) throws IOException {
 		try {
 			zip = new ZipFile( zipFileName );
 		} catch ( final IOException e ) {
-			throw new MojoExecutionException( MESSAGE_CANT_OPEN_ZIP, e );
+			throw new IOException( MESSAGE_CANT_OPEN_ZIP, e );
 		}
 	}
 
@@ -28,11 +28,11 @@ public class ZipFileReader implements AutoCloseable {
 		}
 	}
 
-	public void close() throws MojoExecutionException {
+	public void close() throws IOException {
 		try {
 			zip.close();
 		} catch ( final IOException e ) {
-			throw new MojoExecutionException( MESSAGE_CANT_OPEN_ZIP, e );
+			throw new IOException( MESSAGE_CANT_OPEN_ZIP, e );
 		}
 	}
 }

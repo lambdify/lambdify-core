@@ -2,10 +2,9 @@
 cd $(dirname $0)
 
 # VARIABLES
-TOTAL_MEM=$(cat /proc/meminfo | grep MemTotal | sed 's/  */ /g;s/.*: //;s/kB/\\\/ 1024/i;s/mB/\\\/ 1024 \\\ 1024/g')
-MAX_HEAP_MEM=$(echo "$TOTAL_MEM \\* 60 / 100")
-HEAP_MEM=${HEAP_MEM:-$MAX_MEM}
-JAVA_OPTS=${JAVA_OPTS:- -Xmx=$HEAP_MEM}
+MAX_HEAP_MEM=$(echo "$AWS_LAMBDA_FUNCTION_MEMORY_SIZE \\* 60 / 100")
+HEAP_MEM=${HEAP_MEM:-$(eval expr $MAX_HEAP_MEM)}
+JAVA_OPTS=${JAVA_OPTS:- -Xmx${HEAP_MEM}m }
 
 # MAIN
-java ${JAVA_OPTS} -cp .:lib/* [[main-class]]
+java ${JAVA_OPTS} -cp .:lib/* lambdify.core.AwsLambdaRuntime

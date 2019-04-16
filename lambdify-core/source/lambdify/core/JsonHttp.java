@@ -35,7 +35,7 @@ class JsonHttp implements Closeable {
     JsonHttpResponse receive() throws IOException {
         val status = conn.getResponseCode();
 
-        val resp = status != 200
+        val resp = status / 100 < 4
             ? readResponseFrom( conn.getInputStream() )
             : readResponseFrom( conn.getErrorStream() );
 
@@ -46,7 +46,7 @@ class JsonHttp implements Closeable {
         val length = conn.getHeaderField("Content-Length");
         val response = new byte[Integer.valueOf(length)];
 
-        try (val responseChannel = new DataInputStream( conn.getInputStream() ) ) {
+        try (val responseChannel = new DataInputStream( inputStream ) ) {
             responseChannel.readFully(response);
             return response;
         }
