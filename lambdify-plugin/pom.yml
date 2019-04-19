@@ -2,7 +2,7 @@ modelVersion: 4.0.0
 
 groupId: org.lambdify
 artifactId: lambdify-plugin
-version: 0.8.0.Final
+version: 0.9.0.Final
 packaging: maven-plugin
 
 properties:
