@@ -40,7 +40,7 @@ public class S3UploaderMojo extends AWSMojo {
 	}
 
 	private void uploadPackage( File packageFile ) {
-		getLog().info( "Deploying package on AWS S3: " + s3Bucket + "/" + s3Key );
+		getLog().info( "Deploying package on AWS S3: s3://" + s3Bucket + "/" + s3Key );
 		val s3 = AmazonS3Client.builder().withCredentials( credentials )
 				.withRegion( Regions.fromName(regionName) ).build();
 		s3.putObject( s3Bucket, s3Key, packageFile );
