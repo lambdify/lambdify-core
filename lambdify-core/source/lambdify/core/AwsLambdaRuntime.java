@@ -3,6 +3,7 @@ package lambdify.core;
 import lombok.Value;
 import lombok.val;
 
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 
@@ -24,14 +25,20 @@ public class AwsLambdaRuntime {
     public void mainLoop() throws Exception {
         while ( true ) {
             val request = readRequest();
-            val resp = requestHandler.handle(request.getBody());
-            sendResponse(request.getRequestId(), resp);
+            try {
+                val resp = requestHandler.handle(request.getBody());
+                sendResponse(request.getRequestId(), resp, "response");
+            } catch ( Throwable cause ) {
+                val buffer = new StringWriter();
+                cause.printStackTrace( new PrintWriter(buffer) );
+                sendResponse(request.getRequestId(), buffer.toString().getBytes(), "error");
+            }
         }
     }
 
     private LambdaRequest readRequest() throws Exception {
         val url = "http://" + lambdaServiceHost + "/2018-06-01/runtime/invocation/next";
-        try ( val req = new JsonHttp( new URL(url), "GET" ) ){
+        try ( val req = new SimplifiedHttpClient( new URL(url), "GET" ) ){
             val resp = req.receive();
             ensureResponseIsValid(resp);
 
@@ -41,15 +48,15 @@ public class AwsLambdaRuntime {
         }
     }
 
-    private void sendResponse(String requestId, byte[] respBody) throws Exception {
-        val url = "http://" + lambdaServiceHost + "/2018-06-01/runtime/invocation/"+ requestId +"/response";
-        try ( val post = new JsonHttp( new URL(url), "POST" ) ) {
+    private void sendResponse(String requestId, byte[] respBody, String type) throws Exception {
+        val url = "http://" + lambdaServiceHost + "/2018-06-01/runtime/invocation/"+ requestId +"/" + type;
+        try ( val post = new SimplifiedHttpClient( new URL(url), "POST" ) ) {
             val resp = post.sendAndReceive( respBody );
             ensureResponseIsValid(resp);
         }
     }
 
-    private void ensureResponseIsValid( JsonHttpResponse resp ){
+    private void ensureResponseIsValid( SimplifiedHttpClient.Response resp ){
         if ( resp.getStatus() / 100 > 2 )
             throw new AwsLambdaCommunicationFailure(
                 resp.getStatus(),
